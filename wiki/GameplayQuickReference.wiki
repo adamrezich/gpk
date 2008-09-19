@@ -1,0 +1,5 @@
+#summary Pared-down version of HowToPlay
+#labels User-Manual,Featured
+
+|| *Action* || *Key sequence* ||
+|| Run      || `[`W`]` ||
