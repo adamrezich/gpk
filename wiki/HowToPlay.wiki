@@ -1,4 +1,5 @@
 #summary Basics of module-agnostic gameplay
+#labels User-Manual,Featured
 
 = Introduction =
 GPK is a gamemode with gameplay unusual to most Half-Life 2 derivatives, and thus has a rather steep learning curve. Despite this, the controls and game mechanics were designed to be as intuitive and easy-to-master as possible. Once you've learned the basics, playing GPK should feel instinctive and natural.
