@@ -1,7 +1,7 @@
 #summary Pared-down version of HowToPlay
 #labels User-Manual,Featured
 
-	||	*Action*			||	*Key sequence*								||	*Base speed*	||	*Notes*														||	Implemented	||
+||	*Action*			||	*Key sequence*									||	*Base speed*	||	*Notes*														||	Implemented	||
 ||	Run					||	*`[W]`*											||	100				||	Turning decreases speed relative to turning amount.			||	_Partially_	||
 ||	Run-strafe			||	*`[W]`*`+`*`[A]`* `/` *`[W]`*`+`*`[D]`*			||	90				||	Avoid if possible for maximums effectiveness.				||	_Partially_	||
 ||	Strafe				||	*`[A]`* `/` *`[D]`*								||	40				||	Slow.														||	_Partially_	||
@@ -16,4 +16,5 @@
 ||	Climb				||	*`[W]`*+*`[E]`*									||	0				||																||	No			||
 ||	Roll (break fall)	||	*`[CTRL]`*										||	-10%			||	Must be aimed at the ground in the direction of the fall.	||	_Partially_	||
 ||	Cartwheel			||	*`[CTRL]`*`+`*`[A]`* `/` *`[CTRL]`*`+`*`[D]`*	||	+5%				||																||	No			||
+
 Plus-percentage speeds increase the player's speed for the duration of the move by an amount relative to the player's speed prior to the move.
