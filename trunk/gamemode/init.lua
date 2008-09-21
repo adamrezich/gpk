@@ -5,8 +5,8 @@ AddCSLuaFile(	"shd_viewpunch.lua")
 
 include(		"shared.lua")
 include(		"sv_walljump.lua")
+include(		"sv_svn.lua")
 include(		"sv_dropweapon.lua")
-include(		"sv_playeranim.lua")
 include(		"shd_ragspec.lua")
 include(		"shd_viewpunch.lua")
 
@@ -14,8 +14,7 @@ function GM:OnNPCKilled(victim, killer, weapon)
 	
 end
 function GM:PlayerInitialSpawn(ply)
-	ply:PrintMessage(HUD_PRINTCENTER, "Welcome to the GPK Test Server!\nGPK is a parkour gamemode for Garry's Mod, still under extreme development.\nDirect any questions you have to Unniloct, or takua108 on Facepunch.\nEnjoy!")
-	ply:PrintMessage(HUD_PRINTTALK, "Welcome to the GPK Test Server!\nGPK is a parkour gamemode for Garry's Mod, still under extreme development.\nDirect any questions you have to Unniloct, or takua108 on Facepunch.\nEnjoy!")
+	ply:PrintMessage(HUD_PRINTTALK, "Welcome to the GPK Test Server!\nGPK is a parkour gamemode for Garry's Mod, still under extreme development.\nDirect any questions you have to Unniloct, or takua108 on Facepunch.\nEnjoy! (r"..REVISION..")")
 	ply:SetNWInt(	"Speed",			0)
 	ply:SetNWInt(	"MinSpeed",			100)
 	ply:SetNWInt(	"MaxSpeed",			400)
