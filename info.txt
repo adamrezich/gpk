@@ -1,0 +1,18 @@
+"Gamemode"
+{
+	"name"		"GPK"
+	"version"	"0.0"
+
+	"author_name"	"takua108"
+	"author_email"	""
+	"author_url"	""
+	
+	"icon"		""
+	"info"		""
+	"hide"		""
+
+	"mappattern"
+	{
+		"1"	"^gpk_"
+	}
+}
