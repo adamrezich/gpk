@@ -13,6 +13,7 @@ OVERRIDEPICKUP = false;
 
 function GM:Initialize()
 	self.BaseClass.Initialize( self )
+	if (SERVER) then game.ConsoleCommand( "mp_falldamage 1\n" ) end
 end
 
 function GM:CalcView(ply, origin, angles, fov)
