@@ -95,7 +95,7 @@ function ClimbCheck(ply)
 	else
 		ply:SetNWBool("Climbing", false)
 	end
-	ply:PrintMessage(HUD_PRINTTALK, tostring(tr.a) .. "|" .. tostring(tr.b) .. "|" .. tostring(tr.c))
+	//ply:PrintMessage(HUD_PRINTTALK, tostring(tr.a) .. "|" .. tostring(tr.b) .. "|" .. tostring(tr.c))
 end
 function Climb()
 	for k, ply in pairs(player.GetAll()) do
