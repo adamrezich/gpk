@@ -4,8 +4,9 @@ GM.Email 		= "adam@rezich.com"
 GM.Website 		= "adam.rezich.com"
 GM.TeamBased 	= false
 
+FALLFACTOR = 2.0;
 ROLLING = false;
-ROLLFACTOR = 0.50;
+ROLLFACTOR = 0.75;
 ROLLSTART = CurTime();
 ROLLTIMER = CurTime();
 

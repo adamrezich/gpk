@@ -41,24 +41,29 @@ end
 local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 	if (!ent:IsPlayer()) then return false end
 	local ply = ent;
-	local _lookangle = ply:GetUp() - ply:GetAimVector();
-	local _lookingdown = false;
-	if (_lookangle.z > 1.7) then _lookingdown = true end
-	if (_lookingdown == true and dmginfo:IsFallDamage() and ply:KeyDown(IN_DUCK)) then
-		dmginfo:SetDamage( amount * ROLLFACTOR )
-		ply:SendLua("ROLLING = true;ROLLSTART = CurTime();ROLLTIMER = CurTime() + 0.6;");
-		ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_HOLSTER);
-		ply:GetActiveWeapon().Weapon.Holstered = true;
-		timer.Simple(ply:GetActiveWeapon().Weapon.SafetyTime, function(ply)
-			ply:DrawViewModel(false)
-		end, ply);
-		timer.Simple(0.6, function(ply)
-			if (ply:Alive()) then // he very well could have died from falling damage
-				ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_DRAW);
-				ply:DrawViewModel(true)
-				ply:GetActiveWeapon().Weapon.Holstered = false;
-			end
-		end, ply);
+	
+	if (dmginfo:IsFallDamage()) then
+		local _lookangle = ply:GetUp() - ply:GetAimVector();
+		local _lookingdown = false;
+		if (_lookangle.z > 1.7) then _lookingdown = true end
+		if (_lookingdown == true and ply:KeyDown(IN_DUCK)) then
+			dmginfo:SetDamage(amount * ROLLFACTOR)
+			ply:SendLua("ROLLING = true;ROLLSTART = CurTime();ROLLTIMER = CurTime() + 0.6;");
+			ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_HOLSTER);
+			ply:GetActiveWeapon().Weapon.Holstered = true;
+			timer.Simple(ply:GetActiveWeapon().Weapon.SafetyTime, function(ply)
+				ply:DrawViewModel(false)
+			end, ply);
+			timer.Simple(0.6, function(ply)
+				if (ply:Alive()) then // he very well could have died from falling damage
+					ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_DRAW);
+					ply:DrawViewModel(true)
+					ply:GetActiveWeapon().Weapon.Holstered = false;
+				end
+			end, ply);
+		else
+			dmginfo:SetDamage(amount * FALLFACTOR)
+		end
 	end
 end
 hook.Add( "EntityTakeDamage", "ReduceFallDamage", ReduceFallDamage )
@@ -116,7 +121,7 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 	if (!ply:GetNWBool("OverridePickup")) then
 		if (wep:GetClass() == "weapon_pistol") then
 			if (ply:HasWeapon("weapon_gpk_pistol")) then
-				ply:GiveAmmo(12, "pistol")
+				ply:GiveAmmo(18, "pistol")
 				wep.Entity:Remove();
 			else
 				local _override = ply:GetNWBool("OverridePickup");
