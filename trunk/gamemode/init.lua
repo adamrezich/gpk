@@ -20,6 +20,7 @@ function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt(	"CurMaxSpeed",		400)
 	ply:SetNWInt(	"Acceleration",		1.5)
 	ply:SetNWInt(	"SlideDecrease",	0.2)
+	ply:SetNWBool(	"Climbing",			false)
 	/*
 	ply:SetNWBool(	"Rolling",			false)
 	ply:SetNWInt(	"RollFactor",		0.5)
@@ -67,9 +68,50 @@ end
 hook.Add("SetPlayerAnimation", "SlowPlayerAnimation", SlowPlayerAnimation)
 function GM:KeyPress(ply, key)
 	if (key == IN_USE) then
-		ply:PrintMessage(HUD_PRINTTALK, "Eventually you'll be able to climb walls and vault over objects with this.")
+		ClimbCheck(ply)
 	end
 end
+function ClimbCheck(ply)
+	local tr = {}
+	tr.a = false
+	tr.b = false
+	tr.c = false
+	local basepos = ply:GetShootPos() - Vector(0, 0, 64)
+	local pos = basepos
+	local ang = ply:GetAimVector()
+	ang.z=0
+	pos = basepos + Vector(0, 0, 108)
+	local trace = util.QuickTrace(pos, ang * 32, ply)
+	tr.a = trace.HitWorld
+	pos = basepos + Vector(0, 0, 32)
+	local trace = util.QuickTrace(pos, ang * 32, ply)
+	tr.b = trace.HitWorld
+	pos = basepos - Vector(0, 0, 0)
+	local trace = util.QuickTrace(pos, ang * 32, ply)
+	tr.c = trace.HitWorld
+	
+	if (!tr.a and (tr.b or tr.c) and ply:KeyDown(IN_USE)) then
+		ply:SetNWBool("Climbing", true)
+	else
+		ply:SetNWBool("Climbing", false)
+	end
+	ply:PrintMessage(HUD_PRINTTALK, tostring(tr.a) .. "|" .. tostring(tr.b) .. "|" .. tostring(tr.c))
+end
+function Climb()
+	for k, ply in pairs(player.GetAll()) do
+		if (ply:GetNWBool("Climbing")) then
+			local velo = ply:GetAimVector()
+			velo.x = velo.x * 2
+			velo.y = velo.y * 2
+			velo.z = 2
+			ply:SetVelocity(velo)
+			print(tostring(velo))
+			ply:SetPos(ply:GetPos() + Vector(0, 0, 4))
+			ClimbCheck(ply)
+		end
+	end 
+end
+hook.Add("Think", "Climb", Climb)
 function GM:PlayerCanPickupWeapon(ply, wep)
 	if (!ply:GetNWBool("OverridePickup")) then
 		if (wep:GetClass() == "weapon_pistol") then
@@ -124,3 +166,14 @@ function GM:SetupMove(ply, move)
 end
 function GM:FinishMove(ply, move)
 end
+function util.QuickTrace( origin, dir, filter )
+
+local trace = {}
+
+trace.start = origin
+trace.endpos = origin + dir
+trace.filter = filter
+
+return util.TraceLine( trace )
+
+end 
