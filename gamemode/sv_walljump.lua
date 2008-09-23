@@ -3,7 +3,7 @@ function WallJump( ply, key )
 	if !ply:KeyDown( IN_JUMP ) then return end
 	
 	--variables
-	ReboundPower = 325 --it was 275 in the original.
+	ReboundPower = 400 --it was 275 in the original.
 	JumpHeight = 5 --how far off the ground you have to be for it to work.
 	
 	

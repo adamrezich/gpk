@@ -103,7 +103,7 @@ timer.Simple(0.1, function(self)
 	self.Owner:ViewPunch( Angle( math.Rand(-0.2,-0.1) * self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil, 0 ) )
 	end, self);
 end
-timer.Simple( 2, function(self)
+timer.Simple( self.LowerTime, function(self)
 		if (self and self != NULL and self != {NULL} and self:IsValid() and self != nil) then
 			self:SetWeaponHoldType("normal")
 		end
