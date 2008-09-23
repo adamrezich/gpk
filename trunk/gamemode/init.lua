@@ -10,9 +10,8 @@ include(		"sv_dropweapon.lua")
 include(		"shd_ragspec.lua")
 include(		"shd_viewpunch.lua")
 
-function GM:OnNPCKilled(victim, killer, weapon)
-	
-end
+/*function GM:OnNPCKilled(victim, killer, weapon)
+end*/
 function GM:PlayerInitialSpawn(ply)
 	ply:PrintMessage(HUD_PRINTTALK, "Welcome to the GPK Test Server!\nGPK is a parkour gamemode for Garry's Mod, still under extreme development.\nDirect any questions you have to Unniloct, or takua108 on Facepunch.\nEnjoy! (r"..REVISION..")")
 	ply:SetNWInt(	"Speed",			0)
@@ -61,11 +60,14 @@ local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 		end, ply);
 	end
 end
-hook.Add( "EntityTakeDamage", "ReduceFallDamage", ReduceFallDamage ) 
+hook.Add( "EntityTakeDamage", "ReduceFallDamage", ReduceFallDamage )
+local function SlowPlayerAnimation(ply, anim)
+	ply:SetPlaybackRate(1.55)
+end
+hook.Add("SetPlayerAnimation", "SlowPlayerAnimation", SlowPlayerAnimation)
 function GM:KeyPress(ply, key)
 	if (key == IN_USE) then
 		ply:PrintMessage(HUD_PRINTTALK, "Eventually you'll be able to climb walls and vault over objects with this.")
-		ply:SetAnimation(PLAYER_ATTACK1);
 	end
 end
 function GM:PlayerCanPickupWeapon(ply, wep)
@@ -90,32 +92,35 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 	return ply:GetNWBool("OverridePickup");
 end
 function GM:SetupMove(ply, move)
-	if (ply:KeyDown(IN_FORWARD) and (ply:KeyDown(IN_MOVELEFT) or ply:KeyDown(IN_MOVERIGHT))) then
-		ply:SetNWInt("CurMaxSpeed", ply:GetNWInt("MaxSpeed") * 0.90)
-	elseif (!ply:KeyDown(IN_FORWARD) and (ply:KeyDown(IN_MOVELEFT) or ply:KeyDown(IN_MOVERIGHT))) then
-		ply:SetNWInt("CurMaxSpeed", ply:GetNWInt("MaxSpeed") * 0.25)
-	else
-		ply:SetNWInt("CurMaxSpeed", ply:GetNWInt("MaxSpeed"))
-	end
-	if (ply:KeyDown(IN_BACK)) then
-		ply:SetNWInt("CurMaxSpeed", ply:GetNWInt("MaxSpeed") * 0.5)
-	end
-	if (ply:KeyDown(IN_FORWARD) or ply:KeyDown(IN_MOVELEFT) or ply:KeyDown(IN_MOVERIGHT) or ply:KeyDown(IN_BACK)) then
-		if (ply:GetNWInt("Speed") < ply:GetNWInt("CurMaxSpeed") * 0.25) then
-			ply:SetNWInt("Speed", ply:GetNWInt("CurMaxSpeed") + ply:GetNWInt("Acceleration") * 4)
+	if (ply:OnGround()) then
+		if (ply:KeyDown(IN_FORWARD) and (ply:KeyDown(IN_MOVELEFT) or ply:KeyDown(IN_MOVERIGHT))) then
+			ply:SetNWInt("CurMaxSpeed", ply:GetNWInt("MaxSpeed") * 0.90)
+		elseif (!ply:KeyDown(IN_FORWARD) and !ply:Crouching() and (ply:KeyDown(IN_MOVELEFT) or ply:KeyDown(IN_MOVERIGHT))) then
+			ply:SetNWInt("CurMaxSpeed", ply:GetNWInt("MaxSpeed") * 0.25)
 		else
-			ply:SetNWInt("Speed", ply:GetNWInt("Speed") + ply:GetNWInt("Acceleration"))
+			ply:SetNWInt("CurMaxSpeed", ply:GetNWInt("MaxSpeed"))
 		end
+		if (ply:KeyDown(IN_BACK)) then
+			ply:SetNWInt("CurMaxSpeed", ply:GetNWInt("MaxSpeed") * 0.5)
+		end
+		if (ply:KeyDown(IN_FORWARD) or ply:KeyDown(IN_MOVELEFT) or ply:KeyDown(IN_MOVERIGHT) or ply:KeyDown(IN_BACK)) then
+			if (ply:GetNWInt("Speed") < ply:GetNWInt("CurMaxSpeed") * 0.25) then
+				ply:SetNWInt("Speed", ply:GetNWInt("CurMaxSpeed") + ply:GetNWInt("Acceleration") * 4)
+			else
+				ply:SetNWInt("Speed", ply:GetNWInt("Speed") + ply:GetNWInt("Acceleration"))
+			end
+		end
+		if (ply:KeyDown(IN_DUCK)) then
+			ply:SetNWInt("Speed", ply:GetNWInt("Speed") - ply:GetNWInt("SlideDecrease"))
+		end
+		if (!ply:KeyDown(IN_FORWARD) and !ply:KeyDown(IN_MOVELEFT) and !ply:KeyDown(IN_MOVERIGHT) and !ply:KeyDown(IN_BACK)) then
+			ply:SetNWInt("Speed", ply:GetNWInt("Speed") / 2);
+		end
+		if (ply:GetNWInt("Speed") < ply:GetNWInt("MinSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("MinSpeed")) end
+		if (ply:GetNWInt("Speed") > ply:GetNWInt("CurMaxSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("CurMaxSpeed")) end
+		GAMEMODE:SetPlayerSpeed(ply, ply:GetNWInt("Speed"), ply:GetNWInt("Speed"))
 	end
-	if (ply:KeyDown(IN_DUCK)) then
-		ply:SetNWInt("Speed", ply:GetNWInt("Speed") - ply:GetNWInt("SlideDecrease"))
-	end
-	if (!ply:KeyDown(IN_FORWARD) and !ply:KeyDown(IN_MOVELEFT) and !ply:KeyDown(IN_MOVERIGHT) and !ply:KeyDown(IN_BACK)) then
-		ply:SetNWInt("Speed", ply:GetNWInt("Speed") / 2);
-	end
-	if (ply:GetNWInt("Speed") < ply:GetNWInt("MinSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("MinSpeed")) end
-	if (ply:GetNWInt("Speed") > ply:GetNWInt("CurMaxSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("CurMaxSpeed")) end
-	if (SERVER) then GAMEMODE:SetPlayerSpeed(ply, ply:GetNWInt("Speed"), ply:GetNWInt("Speed")) end
+	//ply:PrintMessage(HUD_PRINTTALK, ply:GetVelocity():Length().." ("..ply:GetNWInt("Speed").."/"..ply:GetNWInt("CurMaxSpeed")..")")
 end
 function GM:FinishMove(ply, move)
 end
