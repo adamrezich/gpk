@@ -13,10 +13,10 @@ if (CLIENT) then
 	SWEP.CSMuzzleFlashes	= true
 end
 
-SWEP.Author						= "TEAM Z-DAY"
-SWEP.Contact					= "http://adam.rezich.com/forums/zday"
-SWEP.Purpose					= "SWEP specifically for the Z-Day gamemode."
-SWEP.Instructions				= "Don't use outside of the Z-Day gamemode."
+SWEP.Author						= "TEAM GPK"
+SWEP.Contact					= "http://rezich.com/gpk"
+SWEP.Purpose					= "SWEP specifically for the GPK gamemode."
+SWEP.Instructions				= "Don't use outside of the GPK gamemode."
 SWEP.Base						= "weapon_base"
 
 SWEP.Spawnable					= false
@@ -59,17 +59,17 @@ local SAFETY_TIME = 0.25
 SWEP.NextSecondaryAttack = 0
 
 local ActIndex = {}
-	ActIndex[ "pistol" ] 		= ACT_HL2MP_IDLE_PISTOL
-	ActIndex[ "smg" ] 			= ACT_HL2MP_IDLE_SMG1
-	ActIndex[ "grenade" ] 		= ACT_HL2MP_IDLE_GRENADE
-	ActIndex[ "ar2" ] 			= ACT_HL2MP_IDLE_AR2
-	ActIndex[ "shotgun" ] 		= ACT_HL2MP_IDLE_SHOTGUN
-	ActIndex[ "rpg" ]	 		= ACT_HL2MP_IDLE_RPG
-	ActIndex[ "physgun" ] 		= ACT_HL2MP_IDLE_PHYSGUN
-	ActIndex[ "crossbow" ] 		= ACT_HL2MP_IDLE_CROSSBOW
-	ActIndex[ "melee" ] 		= ACT_HL2MP_IDLE_MELEE
-	ActIndex[ "slam" ] 			= ACT_HL2MP_IDLE_SLAM
-	ActIndex[ "normal" ]		= ACT_HL2MP_IDLE
+ActIndex[ "pistol" ] 		= ACT_HL2MP_IDLE_PISTOL
+ActIndex[ "smg" ] 			= ACT_HL2MP_IDLE_SMG1
+ActIndex[ "grenade" ] 		= ACT_HL2MP_IDLE_GRENADE
+ActIndex[ "ar2" ] 			= ACT_HL2MP_IDLE_AR2
+ActIndex[ "shotgun" ] 		= ACT_HL2MP_IDLE_SHOTGUN
+ActIndex[ "rpg" ]	 		= ACT_HL2MP_IDLE_RPG
+ActIndex[ "physgun" ] 		= ACT_HL2MP_IDLE_PHYSGUN
+ActIndex[ "crossbow" ] 		= ACT_HL2MP_IDLE_CROSSBOW
+ActIndex[ "melee" ] 		= ACT_HL2MP_IDLE_MELEE
+ActIndex[ "slam" ] 			= ACT_HL2MP_IDLE_SLAM
+ActIndex[ "normal" ]		= ACT_HL2MP_IDLE
 
 function SWEP:SetWeaponHoldType(t)
 
