@@ -12,9 +12,11 @@ include(		"shd_config.lua")
 include(		"shd_ragspec.lua")
 include(		"shd_viewpunch.lua")
 
-local function NPCDeath(victim, killer, weapon)
+function GM:KeyPress(ply, key)
+	if (key == IN_USE) then
+		ClimbCheck(ply)
+	end
 end
-hook.Add("OnNPCKilled", "NPCDeath", NPCDeath)
 function GM:PlayerInitialSpawn(ply)
 	ply:PrintMessage(HUD_PRINTTALK, "Welcome to the GPK Test Server!\nGPK is a parkour gamemode for Garry's Mod, still under extreme development.\nDirect any questions you have to Unniloct, or takua108 on Facepunch.\nEnjoy! (r"..REVISION..")")
 	ply:SetNWInt(	"Speed",			0)
@@ -24,12 +26,7 @@ function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt(	"Acceleration",		1.5)
 	ply:SetNWInt(	"SlideDecrease",	0.2)
 	ply:SetNWBool(	"Climbing",			false)
-	/*
-	ply:SetNWBool(	"Rolling",			false)
-	ply:SetNWInt(	"RollFactor",		0.5)
-	ply:SetNWInt(	"RollTimer",		CurTime())
-	ply:SetNWInt(	"RollStart",		CurTime())
-	*/
+	ply:SetNWBool(	"Rolling",			false)				// OBSOLETE (?)
 	ply:SetNWBool(	"OverridePickup",	false)
 end
 function GM:PlayerLoadout(ply)
@@ -41,6 +38,7 @@ function GM:PlayerLoadout(ply)
 	ply:DrawWorldModel(false)
 	return true
 end
+
 local function ReduceFallDamage(ent, inflictor, attacker, amount, dmginfo)
 	if (!ent:IsPlayer()) then return false end
 	local ply = ent
@@ -74,11 +72,10 @@ local function SlowPlayerAnimation(ply, anim)
 	ply:SetPlaybackRate(1.55)
 end
 hook.Add("SetPlayerAnimation", "SlowPlayerAnimation", SlowPlayerAnimation)
-function GM:KeyPress(ply, key)
-	if (key == IN_USE) then
-		ClimbCheck(ply)
-	end
+local function NPCDeath(victim, killer, weapon)
 end
+hook.Add("OnNPCKilled", "NPCDeath", NPCDeath)
+
 function ClimbCheck(ply)
 	local tr = {}
 	tr.a = false
