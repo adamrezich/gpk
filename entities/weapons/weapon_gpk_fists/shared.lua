@@ -1,4 +1,4 @@
-if ( SERVER ) then AddCSLuaFile( "shared.lua" ) end
+if (SERVER) then AddCSLuaFile("shared.lua") end
 
 SWEP.Base						= "weapon_gpk_base"
 
@@ -11,8 +11,8 @@ SWEP.SlotPos					= 0
 
 SWEP.ViewModelFOV				= 40
 SWEP.ViewModelFlip				= false
-SWEP.IronSightsPos 				= Vector( 0, 0, 0 )
-SWEP.IronSightsAng				= Vector( 0, 0, 0 )
+SWEP.IronSightsPos 				= Vector(0, 0, 0)
+SWEP.IronSightsAng				= Vector(0, 0, 0)
 
 SWEP.SafetyPos					= Vector(1.6253, -12.7378, -1.4437)
 SWEP.SafetyAng					= Vector(81.6156, -1.3747, 11.5092)
@@ -60,14 +60,14 @@ self.Weapon:SetNextPrimaryFire(CurTime() + self.Primary.Delay)
 
 local trace = self.Owner:GetEyeTrace()
 self:SetWeaponHoldType(self.RealHoldType)
-self.Owner:SetAnimation( PLAYER_ATTACK1 );
-self.Weapon:SendWeaponAnim(ACT_VM_HITCENTER);
+self.Owner:SetAnimation(PLAYER_ATTACK1)
+self.Weapon:SendWeaponAnim(ACT_VM_HITCENTER)
 if (CLIENT) then
 timer.Simple(0.1, function(self)
-	self.Owner:ViewPunch( Angle( math.Rand(-0.2,-0.1) * self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil ) )
-	end, self);
+	self.Owner:ViewPunch(Angle(math.Rand(-0.2,-0.1) * self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil))
+	end, self)
 end
-timer.Simple( self.LowerTime, function(self)
+timer.Simple(self.LowerTime, function(self)
 		if (self and self != NULL and self != {NULL} and self:IsValid() and self != nil) then
 			self:SetWeaponHoldType("normal")
 		end
@@ -85,7 +85,7 @@ if trace.HitPos:Distance(self.Owner:GetShootPos()) <= 90 then
 	bullet.Force  = 5 + (power * 50)
 	bullet.Damage = 2 + (math.pow(3, 1+power))
 self.Owner:FireBullets(bullet)
-self.Weapon:EmitSound("physics/flesh/flesh_impact_bullet" .. math.random( 3, 5 ) .. ".wav")
+self.Weapon:EmitSound("physics/flesh/flesh_impact_bullet" .. math.random(3, 5) .. ".wav")
 else
 	self.Weapon:EmitSound("weapons/iceaxe/iceaxe_swing1.wav")
 	self.Weapon:SendWeaponAnim(ACT_VM_MISSCENTER)
@@ -96,14 +96,14 @@ self.Weapon:SetNextSecondaryFire(CurTime() + .6)
 
 local trace = self.Owner:GetEyeTrace()
 self:SetWeaponHoldType("melee")
-self.Owner:SetAnimation( PLAYER_ATTACK1 );
-self.Weapon:SendWeaponAnim(ACT_VM_HITCENTER);
+self.Owner:SetAnimation(PLAYER_ATTACK1)
+self.Weapon:SendWeaponAnim(ACT_VM_HITCENTER)
 if (CLIENT) then
 timer.Simple(0.1, function(self)
-	self.Owner:ViewPunch( Angle( math.Rand(-0.2,-0.1) * self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil, 0 ) )
-	end, self);
+	self.Owner:ViewPunch(Angle(math.Rand(-0.2,-0.1) * self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil, 0))
+	end, self)
 end
-timer.Simple( self.LowerTime, function(self)
+timer.Simple(self.LowerTime, function(self)
 		if (self and self != NULL and self != {NULL} and self:IsValid() and self != nil) then
 			self:SetWeaponHoldType("normal")
 		end
@@ -120,8 +120,8 @@ if trace.HitPos:Distance(self.Owner:GetShootPos()) <= 90 then
 	bullet.Force  = 5 + (power * 50)
 	bullet.Damage = 15 + (math.pow(7, 1+power))
 self.Owner:FireBullets(bullet)
-self.Owner:SetAnimation( PLAYER_ATTACK1 );
-self.Weapon:EmitSound("physics/flesh/flesh_impact_bullet" .. math.random( 3, 5 ) .. ".wav")
+self.Owner:SetAnimation(PLAYER_ATTACK1)
+self.Weapon:EmitSound("physics/flesh/flesh_impact_bullet" .. math.random(3, 5) .. ".wav")
 else
 	self.Weapon:EmitSound("weapons/iceaxe/iceaxe_swing1.wav")
 	self.Weapon:SendWeaponAnim(ACT_VM_MISSCENTER)
