@@ -40,4 +40,4 @@ REVISION = GetSVNBuild("gpk")
 		umsg.Short(ZDayConfig["version"])
 	umsg.End()
 end
-hook.Add("PlayerInitialSpawn", "SendVersionToClient", function(ply) SendVersionToClient(ply); end)*/
+hook.Add("PlayerInitialSpawn", "SendVersionToClient", function(ply) SendVersionToClient(ply) end)*/
