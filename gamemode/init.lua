@@ -1,5 +1,6 @@
 AddCSLuaFile(	"cl_init.lua")
 AddCSLuaFile(	"shared.lua")
+AddCSLuaFile(	"shd_config.lua")
 AddCSLuaFile(	"shd_ragspec.lua")
 AddCSLuaFile(	"shd_viewpunch.lua")
 

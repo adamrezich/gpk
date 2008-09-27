@@ -1,3 +1,5 @@
+include("shd_config.lua")
+
 GM.Name 		= "GPK"
 GM.Author 		= "Adam \"takua108/Unniloct\" Rezich"
 GM.Email 		= "adam@rezich.com"
