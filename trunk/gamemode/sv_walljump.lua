@@ -1,4 +1,3 @@
-SLIDEFACTOR = 0.9875
 function WallJump(ply, key)	
 	if !ply:KeyDown(IN_JUMP) then return end
 	ReboundPower = 300 //it was 275 in the original.
@@ -71,14 +70,14 @@ function WallSlide(ply, key)
 			local vRight = ply:GetRight():GetNormalized()
 			//local vVelocity = Vector(0,0,0)
 			local vVelocity = ply:GetVelocity()
-			if (ply:KeyDown(IN_FORWARD) and vVelocity.z < 0 and _lookangle.z < 1.5) then
+			if (ply:KeyDown(IN_FORWARD) and vVelocity.z < 0 /*and _lookangle.z < 1.5*/) then
 				local tracedata = {}
 				tracedata.start = ply:GetPos()
 				tracedata.endpos = ply:GetPos()+(vForward*24)
 				tracedata.filter = ply
 				local tr = util.TraceLine(tracedata)
 				if (tr.Fraction < 1.0) then
-					vVelocity.z = vVelocity.z * SLIDEFACTOR
+					vVelocity.z = vVelocity.z * WALLSLIDEFACTOR
 					ply:SetLocalVelocity(vVelocity)
 				end
 			end
