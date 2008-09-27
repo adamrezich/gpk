@@ -64,10 +64,16 @@ local function ReduceFallDamage(ent, inflictor, attacker, amount, dmginfo)
 			end, ply)
 		else
 			dmginfo:SetDamage(amount * FALLFACTOR)
+			local recoil = dmginfo:GetDamage()
+			local _dir = math.Rand(-1,1)
+			ply:ViewPunch(Angle(recoil, _dir * recoil * 0.8, _dir * recoil * 0.9))
 		end
 	end
 end
 hook.Add("EntityTakeDamage", "ReduceFallDamage", ReduceFallDamage)
+function PosNeg()
+	if (math.random(2)==1) then return -1 else return 1 end
+end
 local function SlowPlayerAnimation(ply, anim)
 	ply:SetPlaybackRate(1.55)
 end
@@ -110,7 +116,7 @@ function Climb()
 			velo.y = velo.y * 2
 			velo.z = 2
 			ply:SetVelocity(velo)
-			print(tostring(velo))
+			//print(tostring(velo))
 			ply:SetPos(ply:GetPos() + Vector(0, 0, 4))
 			ClimbCheck(ply)
 		end
