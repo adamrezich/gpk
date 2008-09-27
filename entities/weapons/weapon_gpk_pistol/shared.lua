@@ -1,4 +1,4 @@
-if( SERVER) then AddCSLuaFile( "shared.lua") end
+if ( SERVER ) then AddCSLuaFile( "shared.lua" ) end
 
 SWEP.Base						= "weapon_gpk_base"
 
@@ -11,8 +11,8 @@ SWEP.SlotPos					= 0
 
 SWEP.ViewModelFOV				= 80
 SWEP.ViewModelFlip				= false
-SWEP.IronSightsPos 				= Vector( 4.3, -2, 2.7)
-SWEP.IronSightsAng				= Vector( 0, 0, 0)
+SWEP.IronSightsPos 				= Vector( 4.3, -2, 2.7 )
+SWEP.IronSightsAng				= Vector( 0, 0, 0 )
 
 SWEP.SafetyPos					= Vector(1.6253, -12.7378, -1.4437)
 SWEP.SafetyAng					= Vector(81.6156, -1.3747, 11.5092)

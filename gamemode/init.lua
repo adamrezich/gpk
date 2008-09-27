@@ -1,6 +1,5 @@
 AddCSLuaFile(	"cl_init.lua")
 AddCSLuaFile(	"shared.lua")
-AddCSLuaFile(	"shd_config.lua")
 AddCSLuaFile(	"shd_ragspec.lua")
 AddCSLuaFile(	"shd_viewpunch.lua")
 
@@ -8,15 +7,11 @@ include(		"shared.lua")
 include(		"sv_walljump.lua")
 include(		"sv_svn.lua")
 include(		"sv_dropweapon.lua")
-include(		"shd_config.lua")
 include(		"shd_ragspec.lua")
 include(		"shd_viewpunch.lua")
 
-function GM:KeyPress(ply, key)
-	if (key == IN_USE) then
-		ClimbCheck(ply)
-	end
-end
+/*function GM:OnNPCKilled(victim, killer, weapon)
+end*/
 function GM:PlayerInitialSpawn(ply)
 	ply:PrintMessage(HUD_PRINTTALK, "Welcome to the GPK Test Server!\nGPK is a parkour gamemode for Garry's Mod, still under extreme development.\nDirect any questions you have to Unniloct, or takua108 on Facepunch.\nEnjoy! (r"..REVISION..")")
 	ply:SetNWInt(	"Speed",			0)
@@ -26,7 +21,12 @@ function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt(	"Acceleration",		1.5)
 	ply:SetNWInt(	"SlideDecrease",	0.2)
 	ply:SetNWBool(	"Climbing",			false)
-	ply:SetNWBool(	"Rolling",			false)				// OBSOLETE (?)
+	/*
+	ply:SetNWBool(	"Rolling",			false)
+	ply:SetNWInt(	"RollFactor",		0.5)
+	ply:SetNWInt(	"RollTimer",		CurTime())
+	ply:SetNWInt(	"RollStart",		CurTime())
+	*/
 	ply:SetNWBool(	"OverridePickup",	false)
 end
 function GM:PlayerLoadout(ply)
@@ -38,30 +38,29 @@ function GM:PlayerLoadout(ply)
 	ply:DrawWorldModel(false)
 	return true
 end
-
-local function ReduceFallDamage(ent, inflictor, attacker, amount, dmginfo)
+local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 	if (!ent:IsPlayer()) then return false end
-	local ply = ent
+	local ply = ent;
 	
 	if (dmginfo:IsFallDamage()) then
-		local _lookangle = ply:GetUp() - ply:GetAimVector()
-		local _lookingdown = false
+		local _lookangle = ply:GetUp() - ply:GetAimVector();
+		local _lookingdown = false;
 		if (_lookangle.z > 1.7) then _lookingdown = true end
 		if (_lookingdown == true and ply:KeyDown(IN_DUCK)) then
 			dmginfo:SetDamage(amount * ROLLFACTOR)
-			ply:SendLua("ROLLING = trueROLLSTART = CurTime()ROLLTIMER = CurTime() + 0.6")
-			ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_HOLSTER)
-			ply:GetActiveWeapon().Weapon.Holstered = true
+			ply:SendLua("ROLLING = true;ROLLSTART = CurTime();ROLLTIMER = CurTime() + 0.6;");
+			ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_HOLSTER);
+			ply:GetActiveWeapon().Weapon.Holstered = true;
 			timer.Simple(ply:GetActiveWeapon().Weapon.SafetyTime, function(ply)
 				ply:DrawViewModel(false)
-			end, ply)
+			end, ply);
 			timer.Simple(0.6, function(ply)
 				if (ply:Alive()) then // he very well could have died from falling damage
-					ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_DRAW)
+					ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_DRAW);
 					ply:DrawViewModel(true)
-					ply:GetActiveWeapon().Weapon.Holstered = false
+					ply:GetActiveWeapon().Weapon.Holstered = false;
 				end
-			end, ply)
+			end, ply);
 		else
 			dmginfo:SetDamage(amount * FALLFACTOR)
 			local recoil = dmginfo:GetDamage()
@@ -70,7 +69,7 @@ local function ReduceFallDamage(ent, inflictor, attacker, amount, dmginfo)
 		end
 	end
 end
-hook.Add("EntityTakeDamage", "ReduceFallDamage", ReduceFallDamage)
+hook.Add( "EntityTakeDamage", "ReduceFallDamage", ReduceFallDamage )
 function PosNeg()
 	if (math.random(2)==1) then return -1 else return 1 end
 end
@@ -78,10 +77,11 @@ local function SlowPlayerAnimation(ply, anim)
 	ply:SetPlaybackRate(1.55)
 end
 hook.Add("SetPlayerAnimation", "SlowPlayerAnimation", SlowPlayerAnimation)
-local function NPCDeath(victim, killer, weapon)
+function GM:KeyPress(ply, key)
+	if (key == IN_USE) then
+		ClimbCheck(ply)
+	end
 end
-hook.Add("OnNPCKilled", "NPCDeath", NPCDeath)
-
 function ClimbCheck(ply)
 	local tr = {}
 	tr.a = false
@@ -91,22 +91,22 @@ function ClimbCheck(ply)
 	local pos = basepos
 	local ang = ply:GetAimVector()
 	ang.z=0
-	tr.a = util.QuickTrace(basepos + Vector(0, 0, 108), ang * 32, ply).HitWorld
-	tr.b = util.QuickTrace(basepos + Vector(0, 0, 32), ang * 32, ply).HitWorld
-	tr.c = util.QuickTrace(basepos, ang * 32, ply).HitWorld
+	pos = basepos + Vector(0, 0, 108)
+	local trace = util.QuickTrace(pos, ang * 32, ply)
+	tr.a = trace.HitWorld
+	pos = basepos + Vector(0, 0, 32)
+	local trace = util.QuickTrace(pos, ang * 32, ply)
+	tr.b = trace.HitWorld
+	pos = basepos - Vector(0, 0, 0)
+	local trace = util.QuickTrace(pos, ang * 32, ply)
+	tr.c = trace.HitWorld
+	
 	if (!tr.a and (tr.b or tr.c) and ply:KeyDown(IN_USE)) then
-		if (!ply:GetNWBool("Climbing")) then
-			ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_HOLSTER)
-			ply:GetActiveWeapon().Weapon.Holstered = true
-			timer.Simple(ply:GetActiveWeapon().Weapon.SafetyTime, function(ply)
-				if (ply:GetActiveWeapon() and ply:GetActiveWeapon() != NULL and ply:GetActiveWeapon() != {NULL} and ply:GetActiveWeapon():IsValid() and ply:GetActiveWeapon() != nil and ply:GetActiveWeapon().Owner:GetActiveWeapon() == ply:GetActiveWeapon().Weapon) then
-				ply:DrawViewModel(false)
-			end, ply)
-		end
 		ply:SetNWBool("Climbing", true)
 	else
 		ply:SetNWBool("Climbing", false)
 	end
+	//ply:PrintMessage(HUD_PRINTTALK, tostring(tr.a) .. "|" .. tostring(tr.b) .. "|" .. tostring(tr.c))
 end
 function Climb()
 	for k, ply in pairs(player.GetAll()) do
@@ -128,13 +128,13 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 		if (wep:GetClass() == "weapon_pistol") then
 			if (ply:HasWeapon("weapon_gpk_pistol")) then
 				ply:GiveAmmo(18, "pistol")
-				wep.Entity:Remove()
+				wep.Entity:Remove();
 			else
-				local _override = ply:GetNWBool("OverridePickup")
-				ply:SetNWBool("OverridePickup", true)
-				ply:Give("weapon_gpk_pistol")
-				ply:SetNWBool("OverridePickup", _override)
-				wep.Entity:Remove()
+				local _override = ply:GetNWBool("OverridePickup");
+				ply:SetNWBool("OverridePickup", true);
+				ply:Give("weapon_gpk_pistol");
+				ply:SetNWBool("OverridePickup", _override);
+				wep.Entity:Remove();
 			end
 		elseif (wep:GetClass() == "weapon_gpk_pistol") then
 			return true
@@ -142,7 +142,7 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 			return true
 		end
 	end
-	return ply:GetNWBool("OverridePickup")
+	return ply:GetNWBool("OverridePickup");
 end
 function GM:SetupMove(ply, move)
 	if (ply:OnGround()) then
@@ -167,7 +167,7 @@ function GM:SetupMove(ply, move)
 			ply:SetNWInt("Speed", ply:GetNWInt("Speed") - ply:GetNWInt("SlideDecrease"))
 		end
 		if (!ply:KeyDown(IN_FORWARD) and !ply:KeyDown(IN_MOVELEFT) and !ply:KeyDown(IN_MOVERIGHT) and !ply:KeyDown(IN_BACK)) then
-			ply:SetNWInt("Speed", ply:GetNWInt("Speed") / 2)
+			ply:SetNWInt("Speed", ply:GetNWInt("Speed") / 2);
 		end
 		if (ply:GetNWInt("Speed") < ply:GetNWInt("MinSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("MinSpeed")) end
 		if (ply:GetNWInt("Speed") > ply:GetNWInt("CurMaxSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("CurMaxSpeed")) end
@@ -177,10 +177,14 @@ function GM:SetupMove(ply, move)
 end
 function GM:FinishMove(ply, move)
 end
-function util.QuickTrace(origin, dir, filter)
-	local trace = {}
-	trace.start = origin
-	trace.endpos = origin + dir
-	trace.filter = filter
-	return util.TraceLine(trace)
-end
+function util.QuickTrace( origin, dir, filter )
+
+local trace = {}
+
+trace.start = origin
+trace.endpos = origin + dir
+trace.filter = filter
+
+return util.TraceLine( trace )
+
+end 
