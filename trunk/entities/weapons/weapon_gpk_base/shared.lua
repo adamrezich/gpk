@@ -53,6 +53,8 @@ SWEP.AddedHoldingPenalty		= false
 
 SWEP.IsFlashlight				= false
 SWEP.Lowered					= false
+SWEP.Shotgun					= false
+SWEP.CockNext					= false // no jokes about this one
 
 local IRONSIGHT_TIME = 0.25
 local SAFETY_TIME = 0.25
@@ -121,7 +123,7 @@ end
 
 function SWEP:ResetLower()
 	timer.Adjust("LowerTimer_"..self.PrintName, self.LowerTime, 1, function(self)
-		if (self and self != NULL and self != {NULL} and self:IsValid() and self != nil and self.Owner:GetActiveWeapon() == self.Weapon) then
+		if (self and self != NULL and self != {NULL} and self:IsValid() and self != nil and self.Owner and self.Owner:IsPlayer() and self.Owner:GetActiveWeapon() == self.Weapon) then
 			self.Weapon.Lowered = true
 			self.Weapon:SendWeaponAnim(ACT_VM_IDLE_TO_LOWERED)
 			timer.Simple(0.05, function(self)
@@ -255,14 +257,44 @@ function SWEP:Reload()
 	
 	self.Weapon:EmitSound(self.Primary.ReloadSound)
 	
--- We have to be a generic weapon. For now we will just kill the extra ammo in the clip.		
-		//self:TakePrimaryAmmo(self.Weapon:Clip1())
-	if (SERVER) then
-		//self.Owner:PrintMessage(HUD_PRINTTALK, self.Weapon:Clip1())
-		self.Owner:RemoveAmmo(self.Weapon:Clip1(), self.Weapon:GetPrimaryAmmoType())
-	end
-	self.Weapon:DefaultReload(ACT_VM_RELOAD)
-	self.Weapon.reloadtimer = CurTime() + 2
+		if (self.Shotgun) then -- Reload individually
+			
+			if CurTime() >= self.ReloadTapDone  then
+				if self.OneReloadTap then
+					if !self.AddedHoldingPenalty then
+						self.AddedHoldingPenalty = true
+						self.Weapon.reloadtimer = self.Weapon.reloadtimer + 0.4
+					end
+				else
+					self.OneReloadTap = true
+				end
+			end
+			
+			if !self.Weapon.reloadtimer || CurTime() > self.Weapon.reloadtimer then	
+			
+				self.Weapon:SendWeaponAnim( ACT_VM_RELOAD )
+				//self.Owner:SetAnimation(PLAYER_RELOAD)
+				self.Owner:SetAnimation(PLAYER_RELOAD_SHOTGUN)
+				self.Owner:RemoveAmmo( 1, self.Primary.Ammo, false )
+				self.Weapon:SetClip1(  self.Weapon:Clip1() + 1 )
+				
+				if self.Weapon:Clip1() >= self.Primary.ClipSize || self.Owner:GetAmmoCount( self.Primary.Ammo ) <= 0 then
+					timer.Simple( 0.4, function() self.Weapon:SendWeaponAnim( ACT_SHOTGUN_RELOAD_FINISH ) end )
+					timer.Simple( 1.4, function() self.Weapon:SendWeaponAnim( ACT_VM_IDLE ) end )
+				end
+				
+				self.Weapon.reloadtimer 	= CurTime() + 0.4
+				self.ReloadTapDone			= CurTime() + 0.3
+				self.OneReloadTap			= false
+				self.AddedHoldingPenalty	= false
+				
+			end
+		else	
+			//self:TakePrimaryAmmo( self.Weapon:Clip1() )
+			self.Owner:RemoveAmmo(self.Weapon:Clip1(), self.Weapon:GetPrimaryAmmoType())
+			self.Weapon:DefaultReload( ACT_VM_RELOAD )
+			self.Weapon.reloadtimer = CurTime() + 2
+		end
 	return false
 end
 function SWEP:CanPrimaryAttack()
@@ -274,6 +306,7 @@ function SWEP:CanPrimaryAttack()
 		end, self)
 		return false
 	end
+	
 	if (self.Weapon.Holstered) then return false end
 	if self.Primary.DefaultClip == -1 && self.Primary.ClipSize == -1 then return true end -- Of course we can fire, we don't need ammo.
 	//if (self.Weapon:GetNetworkedBool("Safety")) then return false end
@@ -284,9 +317,13 @@ function SWEP:CanPrimaryAttack()
 		return false
 	end
 	
-	/*if self:GetOwner():GetMoveType() == MOVETYPE_LADDER then
+	if (self.Weapon.Shotgun and self.Weapon.CockNext) then
+		//self.Weapon:
+	end
+	
+	if self.Weapon:GetOwner():GetMoveType() == MOVETYPE_LADDER then
 		return false
-	end*/
+	end
 
 	return true
 end
@@ -312,6 +349,33 @@ function SWEP:PrimaryAttack()
 	end
 end
 function SWEP:CanSecondaryAttack()
+	if (self.Weapon.Lowered) then
+		self.Weapon:SendWeaponAnim(ACT_VM_LOWERED_TO_IDLE)
+		timer.Simple(0.05, function(self)
+			self.Weapon.Lowered = false
+			self.Weapon:SendWeaponAnim(ACT_VM_IDLE)
+		end, self)
+		return false
+	end
+	
+	if (self.Weapon.Holstered) then return false end
+	if self.Primary.DefaultClip == -1 && self.Primary.ClipSize == -1 then return true end -- Of course we can fire, we don't need ammo.
+	//if (self.Weapon:GetNetworkedBool("Safety")) then return false end
+	
+	if self.Weapon:Clip1() <= 0 then
+		self.Weapon:EmitSound("Weapon_Pistol.Empty")
+		self.Weapon:SetNextPrimaryFire(CurTime() + 0.2)
+		return false
+	end
+	
+	if (self.Weapon.Shotgun and self.Weapon.CockNext) then
+		//self.Weapon:
+	end
+	
+	if self.Weapon:GetOwner():GetMoveType() == MOVETYPE_LADDER then
+		return false
+	end
+
 	return true
 end
 function SWEP:SecondaryAttack()
@@ -330,12 +394,12 @@ function SWEP:SecondaryAttack()
 				self:DoMelee(v.damage, v.punch, v.anim, v.sound) 
 			else
 				timer.Simple(v.time, 	
-								function(self, v)
-									if self && self.Owner && self.Owner:IsValid() && self:IsValid() && v then
-										self:DoMelee(v.damage, v.punch, v.anim, v.sound) 
-									end
-								end
-							, self, v)
+					function(self, v)
+						if self && self.Owner && self.Owner:IsValid() && self:IsValid() && v then
+							self:DoMelee(v.damage, v.punch, v.anim, v.sound) 
+						end
+					end
+				, self, v)
 			end
 		end
 		
