@@ -11,6 +11,91 @@ include(		"sv_dropweapon.lua")
 include(		"shd_ragspec.lua")
 include(		"shd_viewpunch.lua")
 
+PLAYER_RELOAD_SHOTGUN = 9001
+PLAYER_ROLL_LEFT = 9002
+PLAYER_ROLL_RIGHT = 9003
+
+local AnimTranslateTable = {} 
+AnimTranslateTable[ PLAYER_RELOAD ] 	= ACT_HL2MP_GESTURE_RELOAD 
+AnimTranslateTable[ PLAYER_JUMP ] 		= ACT_HL2MP_JUMP 
+AnimTranslateTable[ PLAYER_ATTACK1 ] 	= ACT_HL2MP_GESTURE_RANGE_ATTACK
+AnimTranslateTable[ PLAYER_ROLL_LEFT ] 	= ACT_ROLL_LEFT
+AnimTranslateTable[ PLAYER_ROLL_RIGHT ] 	= ACT_ROLL_RIGHT
+AnimTranslateTable[PLAYER_RELOAD_SHOTGUN] 	= ACT_SHOTGUN_RELOAD_START
+
+function GM:SetPlayerAnimation(pl, anim)
+	local act = ACT_HL2MP_IDLE
+	local Speed = pl:GetVelocity():Length()
+	local OnGround = pl:OnGround()
+	// If it's in the translate table then just straight translate it
+	if (AnimTranslateTable[ anim ] != nil) then
+		act = AnimTranslateTable[ anim ]
+	else
+		// Crawling on the ground
+		if (OnGround && pl:Crouching()) then
+			act = ACT_HL2MP_IDLE_CROUCH
+			if (Speed > 0) then
+				act = ACT_HL2MP_WALK_CROUCH
+			end
+		elseif (Speed > 210) then
+			act = ACT_HL2MP_RUN
+			// Player is running on ground
+		elseif (Speed > 0) then
+			act = ACT_HL2MP_WALK
+		end
+	end
+	// Attacking/Reloading is handled by the RestartGesture function
+	if (act == ACT_HL2MP_GESTURE_RANGE_ATTACK ||
+		act == ACT_HL2MP_GESTURE_RELOAD) then
+		pl:RestartGesture(pl:Weapon_TranslateActivity(act))
+		// If this was an attack send the anim to the weapon model
+		if (act == ACT_HL2MP_GESTURE_RANGE_ATTACK) then
+			pl:Weapon_SetActivity(pl:Weapon_TranslateActivity(ACT_RANGE_ATTACK1), 0);
+		end
+	return
+	end
+	// Always play the jump anim if we're in the air
+	if (!OnGround) then
+		act = ACT_HL2MP_JUMP
+	end
+	// Ask the weapon to translate the animation and get the sequence
+	// (ACT_HL2MP_JUMP becomes ACT_HL2MP_JUMP_AR2 for example)
+	local seq = pl:SelectWeightedSequence(pl:Weapon_TranslateActivity(act))
+	// If we're in a vehicle just sit down
+	// We should let the vehicle decide this when we have scripted vehicles
+	if (pl:InVehicle()) then
+		// TODO! Different ACTS for different vehicles!
+		if (pl:GetVehicle():GetTable().HandleAnimation) then
+			seq = pl:GetVehicle():GetTable().HandleAnimation(pl)
+		else
+			local class = pl:GetVehicle():GetClass()
+			if (class == "prop_vehicle_jeep") then
+				seq = pl:LookupSequence("drive_jeep")
+			elseif (class == "prop_vehicle_airboat") then
+				seq = pl:LookupSequence("drive_airboat")
+			else
+				seq = pl:LookupSequence("drive_pd")
+			end
+		end
+	end
+	// If the weapon didn't return a translated sequence just set
+	//	the activity directly.
+	if (seq == -1) then
+		// Hack.. If we don't have a weapon and we're jumping we
+		// use the SLAM animation (prevents the reference anim from showing)
+		if (act == ACT_HL2MP_JUMP) then
+			act = ACT_HL2MP_JUMP_SLAM
+		end
+		seq = pl:SelectWeightedSequence(act)
+	end
+	// Don't keep switching sequences if we're already playing the one we want.
+	if (pl:GetSequence() == seq) then return end
+	// Set and reset the sequence
+	pl:SetPlaybackRate(1.0)
+	pl:ResetSequence(seq)
+	pl:SetCycle(0)
+end
+
 /*function GM:OnNPCKilled(victim, killer, weapon)
 end*/
 function GM:PlayerInitialSpawn(ply)
@@ -22,8 +107,8 @@ function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt(	"Acceleration",		1.5)
 	ply:SetNWInt(	"SlideDecrease",	0.2)
 	ply:SetNWBool(	"Climbing",			false)
-	/*
 	ply:SetNWBool(	"Rolling",			false)
+	/*
 	ply:SetNWInt(	"RollFactor",		0.5)
 	ply:SetNWInt(	"RollTimer",		CurTime())
 	ply:SetNWInt(	"RollStart",		CurTime())
@@ -33,9 +118,9 @@ end
 function GM:PlayerLoadout(ply)
 	ply:SetNWBool("OverridePickup", true)
 	ply:Give("weapon_gpk_fists")
-	ply:Give("weapon_gpk_pistol")
+	//ply:Give("weapon_gpk_pistol")
 	ply:SetNWBool("OverridePickup", false)
-	ply:SetArmor(100)
+	ply:SetArmor(0)
 	ply:DrawWorldModel(false)
 	return true
 end
@@ -52,6 +137,7 @@ local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 			ply:SendLua("ROLLING = true;ROLLSTART = CurTime();ROLLTIMER = CurTime() + 0.6;");
 			ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_HOLSTER);
 			ply:GetActiveWeapon().Weapon.Holstered = true;
+			ply:SetNWBool("Rolling", true)
 			timer.Simple(ply:GetActiveWeapon().Weapon.SafetyTime, function(ply)
 				ply:DrawViewModel(false)
 			end, ply);
@@ -60,6 +146,7 @@ local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 					ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_DRAW);
 					ply:DrawViewModel(true)
 					ply:GetActiveWeapon().Weapon.Holstered = false;
+					ply:SetNWBool("Rolling", false)
 				end
 			end, ply);
 		else
@@ -71,6 +158,14 @@ local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 	end
 end
 hook.Add( "EntityTakeDamage", "ReduceFallDamage", ReduceFallDamage )
+local function IncreaseSlashingDamage( ent, inflictor, attacker, amount, dmginfo )
+	if (!ent:IsPlayer()) then return false end
+	local ply = ent;
+	
+	/*if (dmginfo) then
+	end*/
+end
+hook.Add( "EntityTakeDamage", "IncreaseSlashingDamage", IncreaseSlashingDamage)
 function PosNeg()
 	if (math.random(2)==1) then return -1 else return 1 end
 end
@@ -126,24 +221,103 @@ end
 hook.Add("Think", "Climb", Climb)
 function GM:PlayerCanPickupWeapon(ply, wep)
 	if (!ply:GetNWBool("OverridePickup")) then
+		local r = false
+		local o = false
+		if (!ply:KeyDown(IN_USE)) then return false end
 		if (wep:GetClass() == "weapon_pistol") then
 			if (ply:HasWeapon("weapon_gpk_pistol")) then
 				ply:GiveAmmo(18, "pistol")
 				wep.Entity:Remove();
+				PickupViewPunch(ply)
 			else
 				local _override = ply:GetNWBool("OverridePickup");
 				ply:SetNWBool("OverridePickup", true);
 				ply:Give("weapon_gpk_pistol");
+				ply:SelectWeapon("weapon_gpk_pistol")
 				ply:SetNWBool("OverridePickup", _override);
 				wep.Entity:Remove();
+				PickupViewPunch(ply)
+			end
+		elseif (wep:GetClass() == "weapon_smg1") then
+			if (ply:HasWeapon("weapon_gpk_smg")) then
+				ply:GiveAmmo(45, "smg1")
+				wep.Entity:Remove();
+				PickupViewPunch(ply)
+			else
+				local _override = ply:GetNWBool("OverridePickup");
+				ply:SetNWBool("OverridePickup", true);
+				ply:Give("weapon_gpk_smg");
+				ply:SelectWeapon("weapon_gpk_smg")
+				ply:SetNWBool("OverridePickup", _override);
+				wep.Entity:Remove();
+				PickupViewPunch(ply)
+			end
+		elseif (wep:GetClass() == "weapon_shotgun") then
+			if (ply:HasWeapon("weapon_gpk_shotgun")) then
+				ply:GiveAmmo(6, "buckshot")
+				wep.Entity:Remove();
+				PickupViewPunch(ply)
+			else
+				local _override = ply:GetNWBool("OverridePickup");
+				ply:SetNWBool("OverridePickup", true);
+				ply:Give("weapon_gpk_shotgun");
+				ply:SelectWeapon("weapon_gpk_shotgun")
+				ply:SetNWBool("OverridePickup", _override);
+				wep.Entity:Remove();
+				PickupViewPunch(ply)
+			end
+		elseif (wep:GetClass() == "weapon_crowbar") then
+			if (ply:HasWeapon("weapon_gpk_crowbar")) then
+				return false
+			else
+				local _override = ply:GetNWBool("OverridePickup");
+				ply:SetNWBool("OverridePickup", true);
+				ply:Give("weapon_gpk_crowbar");
+				ply:SelectWeapon("weapon_gpk_crowbar")
+				ply:SetNWBool("OverridePickup", _override);
+				wep.Entity:Remove();
+				PickupViewPunch(ply)
 			end
 		elseif (wep:GetClass() == "weapon_gpk_pistol") then
+			PickupViewPunch(ply)
+			timer.Simple(0.05, function(ply)
+				ply:SelectWeapon("weapon_gpk_pistol")
+			end, ply)
+			return true
+		elseif (wep:GetClass() == "weapon_gpk_smg") then
+			PickupViewPunch(ply)
+			timer.Simple(0.05, function(ply)
+				ply:SelectWeapon("weapon_gpk_smg")
+			end, ply)
+			return true
+		elseif (wep:GetClass() == "weapon_gpk_shotgun") then
+			PickupViewPunch(ply)
+			timer.Simple(0.05, function(ply)
+				ply:SelectWeapon("weapon_gpk_shotgun")
+			end, ply)
+			return true
+		elseif (wep:GetClass() == "weapon_gpk_crowbar") then
+			PickupViewPunch(ply)
+			timer.Simple(0.05, function(ply)
+				ply:SelectWeapon("weapon_gpk_crowbar")
+			end, ply)
+			return true
+		/*elseif (wep:GetClass() == "weapon_slam") then
+			PickupViewPunch(ply)
+			return true
+		elseif (wep:GetClass() == "weapon_stunstick") then
+			PickupViewPunch(ply)
 			return true
 		elseif (wep:GetClass() == "weapon_physgun") then
-			return true
+			PickupViewPunch(ply)
+			return true*/
 		end
 	end
+	PickupViewPunch(ply)
 	return ply:GetNWBool("OverridePickup");
+end
+function PickupViewPunch(ply)
+	ply:ViewPunch(Angle(10, -10, 10))
 end
 function GM:SetupMove(ply, move)
 	if (ply:OnGround()) then
