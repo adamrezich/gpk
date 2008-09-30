@@ -1,6 +1,11 @@
 include('shared.lua')
 function ENT:Initialize()
-//	self.Entity:SetAngles(Angle(0,0,90))
+	local h = 384
+	local l = 384 // TODO: FIX!!
+	local w = 8
+	local _min = Vector(0-(w/2),0-(l/2),0-(h/2))
+	local _max = Vector(w/2,l/2,h/2) 
+	self.Entity:SetRenderBounds(_min,_max)
 end
 function ENT:Draw()
 	cam.Start3D2D(self.Entity:GetPos() - self.Entity:GetForward() * 1, /*self.Entity:GetAngles()*/ Angle(180, 270, 270), 0.1)
