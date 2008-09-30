@@ -11,7 +11,7 @@ function ENT:Initialize()
 	local w = 8
 	local _min = Vector(0-(w/2),0-(l/2),0-(h/2))
 	local _max = Vector(w/2,l/2,h/2) 
-	self.Entity:SetCollisionBounds(Vector(38400,38400,38400), Vector(-38400,-38400,38400))
+	self.Entity:SetRenderBounds(_min,_max)
 end
 function ENT:Draw()
 	cam.Start3D2D(self.Entity:GetPos() + self.Entity:GetForward() * 7, /*self.Entity:GetAngles()*/ Angle(180, 90, 270), 0.8)
