@@ -279,8 +279,16 @@ function SWEP:Reload()
 				self.Weapon:SetClip1(  self.Weapon:Clip1() + 1 )
 				
 				if self.Weapon:Clip1() >= self.Primary.ClipSize || self.Owner:GetAmmoCount( self.Primary.Ammo ) <= 0 then
-					timer.Simple( 0.4, function() self.Weapon:SendWeaponAnim( ACT_SHOTGUN_RELOAD_FINISH ) end )
-					timer.Simple( 1.4, function() self.Weapon:SendWeaponAnim( ACT_VM_IDLE ) end )
+					timer.Simple( 0.4, function()
+						if (self.Owner and self.Owner:IsPlayer() and self.Weapon and self.Weapon:IsValid()) then
+							self.Weapon:SendWeaponAnim( ACT_SHOTGUN_RELOAD_FINISH )
+						end
+					end)
+					timer.Simple( 1.4, function()
+						if (self.Owner and self.Owner:IsPlayer() and self.Weapon and self.Weapon:IsValid()) then
+							self.Weapon:SendWeaponAnim( ACT_VM_IDLE )
+						end
+					end )
 				end
 				
 				self.Weapon.reloadtimer 	= CurTime() + 0.4
@@ -301,8 +309,10 @@ function SWEP:CanPrimaryAttack()
 	if (self.Weapon.Lowered) then
 		self.Weapon:SendWeaponAnim(ACT_VM_LOWERED_TO_IDLE)
 		timer.Simple(0.05, function(self)
-			self.Weapon.Lowered = false
-			self.Weapon:SendWeaponAnim(ACT_VM_IDLE)
+			if (self and self != NULL and self != {NULL} and self:IsValid() and self != nil and self.Owner and self.Owner:IsPlayer() and self.Owner:GetActiveWeapon() == self.Weapon) then
+				self.Weapon.Lowered = false
+				self.Weapon:SendWeaponAnim(ACT_VM_IDLE)
+			end
 		end, self)
 		return false
 	end

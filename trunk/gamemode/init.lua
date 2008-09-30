@@ -15,6 +15,8 @@ PLAYER_RELOAD_SHOTGUN = 9001
 PLAYER_ROLL_LEFT = 9002
 PLAYER_ROLL_RIGHT = 9003
 
+SlideSound = {}
+
 local AnimTranslateTable = {} 
 AnimTranslateTable[ PLAYER_RELOAD ] 	= ACT_HL2MP_GESTURE_RELOAD 
 AnimTranslateTable[ PLAYER_JUMP ] 		= ACT_HL2MP_JUMP 
@@ -99,7 +101,6 @@ end
 /*function GM:OnNPCKilled(victim, killer, weapon)
 end*/
 function GM:PlayerInitialSpawn(ply)
-	ply:PrintMessage(HUD_PRINTTALK, "Welcome to the GPK Test Server!\nGPK is a parkour gamemode for Garry's Mod, still under extreme development.\nDirect any questions you have to Unniloct, or takua108 on Facepunch.\nEnjoy! (r"..REVISION..")")
 	ply:SetNWInt(	"Speed",			0)
 	ply:SetNWInt(	"MinSpeed",			100)
 	ply:SetNWInt(	"MaxSpeed",			400)
@@ -114,6 +115,8 @@ function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt(	"RollStart",		CurTime())
 	*/
 	ply:SetNWBool(	"OverridePickup",	false)
+	
+	SlideSound[ply:UniqueID()] = CreateSound(ply,"physics/body/body_medium_scrape_smooth_loop1.wav")
 end
 function GM:PlayerLoadout(ply)
 	ply:SetNWBool("OverridePickup", true)
