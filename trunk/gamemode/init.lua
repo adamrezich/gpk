@@ -169,6 +169,16 @@ local function IncreaseSlashingDamage( ent, inflictor, attacker, amount, dmginfo
 	end*/
 end
 hook.Add( "EntityTakeDamage", "IncreaseSlashingDamage", IncreaseSlashingDamage)
+local function PlayerPainSounds( ent, inflictor, attacker, amount, dmginfo)
+	if (ent:IsPlayer()) then
+		local num = math.ceil(dmginfo:GetDamage()/10)
+		num = num + math.random(-1, 1)
+		if (num > 10) then num = 10 end
+		if (num < 1) then num = 1 end
+		ent:EmitSound("/vo/npc/male01/pain0" .. num .. ".wav", 50 + (dmginfo:GetDamage() / 2), 100)
+	end
+end
+hook.Add("EntityTakeDamage", "PlayerPainSounds", PlayerPainSounds)
 function PosNeg()
 	if (math.random(2)==1) then return -1 else return 1 end
 end

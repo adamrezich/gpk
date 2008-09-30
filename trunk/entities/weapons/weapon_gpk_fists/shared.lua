@@ -81,6 +81,10 @@ timer.Simple(self.LowerTime, function(self)
 
 
 local power = math.floor(self.Owner:GetVelocity():Length()) / 600
+if (trace.Entity:GetClass() == "npc_manhack") then
+	self.Owner:EmitSound("/vo/npc/male01/pain0" .. math.random(1, 5) .. ".wav", math.Rand(30,60), 100)
+	self.Owner:SetHealth(self.Owner:Health() - math.random(1, 4))
+end
 if trace.HitPos:Distance(self.Owner:GetShootPos()) <= 90 then
 	bullet = {}
 	bullet.Num    = 1
@@ -118,6 +122,10 @@ timer.Simple(self.LowerTime, function(self)
 	end, self)
 	
 local power = math.floor(self.Owner:GetVelocity():Length()) / 600
+if (trace.Entity:GetClass() == "npc_manhack") then
+	self.Owner:EmitSound("/vo/npc/male01/pain0" .. math.random(1, 5) .. ".wav", math.Rand(30,60), 100)
+	self.Owner:SetHealth(self.Owner:Health() - math.random(1, 4))
+end
 if trace.HitPos:Distance(self.Owner:GetShootPos()) <= 90 then
 	bullet = {}
 	bullet.Num    = 1
