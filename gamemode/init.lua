@@ -241,7 +241,7 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 			if (ply:HasWeapon("weapon_gpk_pistol")) then
 				ply:GiveAmmo(18, "pistol")
 				wep.Entity:Remove();
-				PickupViewPunch(ply)
+				//PickupViewPunch(ply)
 			else
 				local _override = ply:GetNWBool("OverridePickup");
 				ply:SetNWBool("OverridePickup", true);
@@ -249,13 +249,13 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 				ply:SelectWeapon("weapon_gpk_pistol")
 				ply:SetNWBool("OverridePickup", _override);
 				wep.Entity:Remove();
-				PickupViewPunch(ply)
+				//PickupViewPunch(ply)
 			end
 		elseif (wep:GetClass() == "weapon_smg1") then
 			if (ply:HasWeapon("weapon_gpk_smg")) then
 				ply:GiveAmmo(45, "smg1")
 				wep.Entity:Remove();
-				PickupViewPunch(ply)
+				//PickupViewPunch(ply)
 			else
 				local _override = ply:GetNWBool("OverridePickup");
 				ply:SetNWBool("OverridePickup", true);
@@ -263,13 +263,13 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 				ply:SelectWeapon("weapon_gpk_smg")
 				ply:SetNWBool("OverridePickup", _override);
 				wep.Entity:Remove();
-				PickupViewPunch(ply)
+				//PickupViewPunch(ply)
 			end
 		elseif (wep:GetClass() == "weapon_shotgun") then
 			if (ply:HasWeapon("weapon_gpk_shotgun")) then
 				ply:GiveAmmo(6, "buckshot")
 				wep.Entity:Remove();
-				PickupViewPunch(ply)
+				//PickupViewPunch(ply)
 			else
 				local _override = ply:GetNWBool("OverridePickup");
 				ply:SetNWBool("OverridePickup", true);
@@ -277,7 +277,7 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 				ply:SelectWeapon("weapon_gpk_shotgun")
 				ply:SetNWBool("OverridePickup", _override);
 				wep.Entity:Remove();
-				PickupViewPunch(ply)
+				//PickupViewPunch(ply)
 			end
 		elseif (wep:GetClass() == "weapon_crowbar") then
 			if (ply:HasWeapon("weapon_gpk_crowbar")) then
@@ -289,7 +289,7 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 				ply:SelectWeapon("weapon_gpk_crowbar")
 				ply:SetNWBool("OverridePickup", _override);
 				wep.Entity:Remove();
-				PickupViewPunch(ply)
+				//PickupViewPunch(ply)
 			end
 		elseif (wep:GetClass() == "weapon_gpk_pistol") then
 			PickupViewPunch(ply)
