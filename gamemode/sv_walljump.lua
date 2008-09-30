@@ -77,10 +77,17 @@ function WallSlide(ply, key)
 				tracedata.filter = ply
 				local tr = util.TraceLine(tracedata)
 				if (tr.Fraction < 1.0) then
+					SlideSound[ply:UniqueID()]:PlayEx(1,100)
 					vVelocity.z = vVelocity.z * WALLSLIDEFACTOR
 					ply:SetLocalVelocity(vVelocity)
+				else
+					SlideSound[ply:UniqueID()]:Stop()
 				end
+			else
+				SlideSound[ply:UniqueID()]:Stop()
 			end
+		else
+			SlideSound[ply:UniqueID()]:Stop()
 		end
 	end
 end

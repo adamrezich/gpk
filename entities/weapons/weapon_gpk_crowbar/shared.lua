@@ -67,8 +67,10 @@ self:SetWeaponHoldType(self.RealHoldType)
 self.Owner:SetAnimation(PLAYER_ATTACK1)
 self.Weapon:SendWeaponAnim(ACT_VM_HITCENTER)
 if (CLIENT) then
-timer.Simple(0.1, function(self)
-	self.Owner:ViewPunch(Angle(math.Rand(-0.2,-0.1) * self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil))
+	timer.Simple(0.1, function(self)
+		if (self.Owner and self.Owner:IsPlayer()) then
+			self.Owner:ViewPunch(Angle(math.Rand(-0.2,-0.1) * self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil, math.Rand(-0.1,0.1) *self.Primary.Recoil))
+		end
 	end, self)
 end
 timer.Simple(self.LowerTime, function(self)
