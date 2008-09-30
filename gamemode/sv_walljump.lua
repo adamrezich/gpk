@@ -19,6 +19,7 @@ function WallJump(ply, key)
 				vVelocity = vVelocity + (vRight * ReboundPower)
 				vVelocity.z = vVelocity.z + ReboundPower
 				ply:SetLocalVelocity(vVelocity)
+				WallJumpSound(ply)
 			end
 		end
 		if ply:KeyDown(IN_MOVELEFT) then
@@ -31,6 +32,7 @@ function WallJump(ply, key)
 				vVelocity = vVelocity + (vRight * -ReboundPower)
 				vVelocity.z = vVelocity.z + ReboundPower
 				ply:SetLocalVelocity(vVelocity)
+				WallJumpSound(ply)
 			end
 		end
 		if ply:KeyDown(IN_BACK) then
@@ -43,6 +45,7 @@ function WallJump(ply, key)
 				vVelocity = vVelocity + (vForward * -ReboundPower)
 				vVelocity.z = vVelocity.z + ReboundPower
 				ply:SetLocalVelocity(vVelocity)
+				WallJumpSound(ply)
 			end
 		end
 		if ply:KeyDown(IN_FORWARD) then
@@ -55,6 +58,7 @@ function WallJump(ply, key)
 				vVelocity = vVelocity + (vForward * ReboundPower)
 				vVelocity.z = vVelocity.z + ReboundPower
 				ply:SetLocalVelocity(vVelocity)
+				WallJumpSound(ply)
 			end
 		end
 	end
@@ -77,7 +81,7 @@ function WallSlide(ply, key)
 				tracedata.filter = ply
 				local tr = util.TraceLine(tracedata)
 				if (tr.Fraction < 1.0) then
-					SlideSound[ply:UniqueID()]:PlayEx(1,100)
+					if (!ply:GetNWBool("Climbing")) then SlideSound[ply:UniqueID()]:PlayEx(1,100) end
 					vVelocity.z = vVelocity.z * WALLSLIDEFACTOR
 					ply:SetLocalVelocity(vVelocity)
 				else
@@ -92,3 +96,7 @@ function WallSlide(ply, key)
 	end
 end
 hook.Add("Think", "WallSlide", WallSlide)
+
+function WallJumpSound(ply)
+	ply:EmitSound("/physics/concrete/rock_impact_hard" .. math.random(1, 6) .. ".wav", math.Rand(90, 110), math.Rand(60, 80))
+end
