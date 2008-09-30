@@ -3,6 +3,7 @@ include(		"shd_ragspec.lua")
 include(		"shd_viewpunch.lua")
 
 surface.CreateFont("Fixedsys", 12, 400, false, false, "Fixedsys12")
+surface.CreateFont("Tahoma", 14, 400, false, false, "Tahoma14")
 
 ROLLING = false
 ROLLSTART = CurTime()
