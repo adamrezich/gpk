@@ -178,7 +178,7 @@ local function PlayerPainSounds( ent, inflictor, attacker, amount, dmginfo)
 		ent:EmitSound("/vo/npc/male01/pain0" .. num .. ".wav", 50 + (dmginfo:GetDamage() / 2), 100)
 	end
 end
-hook.Add("EntityTakeDamage", "PlayerPainSounds", PlayerPainSounds)
+//hook.Add("EntityTakeDamage", "PlayerPainSounds", PlayerPainSounds)
 function PosNeg()
 	if (math.random(2)==1) then return -1 else return 1 end
 end
