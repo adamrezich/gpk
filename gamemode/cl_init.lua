@@ -2,6 +2,8 @@ include(		"shared.lua")
 include(		"shd_ragspec.lua")
 include(		"shd_viewpunch.lua")
 
+surface.CreateFont("Fixedsys", 12, 400, false, false, "Fixedsys12")
+
 ROLLING = false
 ROLLSTART = CurTime()
 ROLLTIMER = CurTime()

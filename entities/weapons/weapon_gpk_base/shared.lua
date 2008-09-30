@@ -13,10 +13,10 @@ if (CLIENT) then
 	SWEP.CSMuzzleFlashes	= true
 end
 
-SWEP.Author						= "TEAM GPK"
+/*SWEP.Author						= "TEAM GPK"
 SWEP.Contact					= "http://rezich.com/gpk"
 SWEP.Purpose					= "SWEP specifically for the GPK gamemode."
-SWEP.Instructions				= "Don't use outside of the GPK gamemode."
+SWEP.Instructions				= "Don't use outside of the GPK gamemode."*/
 SWEP.Base						= "weapon_base"
 
 SWEP.Spawnable					= false
