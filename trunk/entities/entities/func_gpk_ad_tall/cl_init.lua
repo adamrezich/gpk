@@ -13,6 +13,6 @@ function ENT:Draw()
 		//cam.IgnoreZ(true)
 		cam.IgnoreZ(false)
 		surface.DrawTexturedRect(x,y,256,256)
-		draw.SimpleText("80x240", "Fixedsys12", x+40, y+120, Color(255, 255, 255, 255), 1, 1)
+		draw.SimpleText("160x480", "Fixedsys12", x+40, y+120, Color(255, 255, 255, 255), 1, 1)
 	cam.End3D2D()
 end
