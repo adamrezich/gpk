@@ -308,10 +308,11 @@ end
 function SWEP:CanPrimaryAttack()
 	if (self.Weapon.Lowered) then
 		self.Weapon:SendWeaponAnim(ACT_VM_LOWERED_TO_IDLE)
-		timer.Simple(0.05, function(self)
+		timer.Simple(0.15, function(self)
 			if (self and self != NULL and self != {NULL} and self:IsValid() and self != nil and self.Owner and self.Owner:IsPlayer() and self.Owner:GetActiveWeapon() == self.Weapon) then
 				self.Weapon.Lowered = false
 				self.Weapon:SendWeaponAnim(ACT_VM_IDLE)
+				self:PrimaryAttack()
 			end
 		end, self)
 		return false

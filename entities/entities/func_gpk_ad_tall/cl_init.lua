@@ -1,5 +1,5 @@
 include('shared.lua')
-TEXT = {}
+local TEXT = {}
 TEXT[0]="Your advertisement here,"
 TEXT[1]="just $1.00/month!"
 TEXT[2]="Hurry, prices subject to"
