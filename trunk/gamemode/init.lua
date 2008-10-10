@@ -97,18 +97,25 @@ function GM:SetPlayerAnimation(pl, anim)
 	pl:ResetSequence(seq)
 	pl:SetCycle(0)
 end
-
+function GM:PlayerDeathSound()
+	return true
+end
 /*function GM:OnNPCKilled(victim, killer, weapon)
 end*/
 function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt(	"Speed",			0)
 	ply:SetNWInt(	"MinSpeed",			100)
-	ply:SetNWInt(	"MaxSpeed",			400)
-	ply:SetNWInt(	"CurMaxSpeed",		400)
+	ply:SetNWInt(	"MaxSpeed",			MAXSPEED)
+	ply:SetNWInt(	"CurMaxSpeed",		MAXSPEED)
+	ply:SetNWInt(	"CrawlSpeed",		200)
 	ply:SetNWInt(	"Acceleration",		1.5)
-	ply:SetNWInt(	"SlideDecrease",	0.2)
+	ply:SetNWInt(	"SlideDecrease",	0.05)
+	ply:SetNWInt(	"ClimbCombo",		0)
+	ply:SetNWInt(	"WalljumpCombo",	0)
+	ply:SetNWInt(	"WalljumpTimer",	CurTime())
 	ply:SetNWBool(	"Climbing",			false)
 	ply:SetNWBool(	"Rolling",			false)
+	ply:SetNWBool(	"Wallsliding",		false)
 	/*
 	ply:SetNWInt(	"RollFactor",		0.5)
 	ply:SetNWInt(	"RollTimer",		CurTime())
@@ -140,6 +147,9 @@ local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 			ply:SendLua("ROLLING = true;ROLLSTART = CurTime();ROLLTIMER = CurTime() + 0.6;");
 			ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_HOLSTER);
 			ply:GetActiveWeapon().Weapon.Holstered = true;
+			if (ply:GetNWBool("Wallsliding")) then
+				ply:PrintMessage(HUD_PRINTCENTER, "WALLSLIDE + ROLL")
+			end
 			ply:SetNWBool("Rolling", true)
 			timer.Simple(ply:GetActiveWeapon().Weapon.SafetyTime, function(ply)
 				ply:DrawViewModel(false)
@@ -149,6 +159,8 @@ local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 					ply:GetActiveWeapon().Weapon:SendWeaponAnim(ACT_VM_DRAW);
 					ply:DrawViewModel(true)
 					ply:GetActiveWeapon().Weapon.Holstered = false;
+					ply:GetActiveWeapon().Weapon.Lowered = false
+					ply:GetActiveWeapon():ResetLower()
 					ply:SetNWBool("Rolling", false)
 				end
 			end, ply);
@@ -211,6 +223,12 @@ function ClimbCheck(ply)
 	tr.c = trace.HitWorld
 	
 	if (!tr.a and (tr.b or tr.c) and ply:KeyDown(IN_USE)) then
+		/*if (!ply:GetNWBool("Climbing")) then
+			ply:SetNWInt("ClimbCombo",ply:GetNWInt("ClimbCombo") + 1)
+			if (ply:GetNWInt("ClimbCombo") != 1) then
+				ply:PrintMessage(HUD_PRINTCENTER, "x" .. ply:GetNWInt("ClimbCombo") .. "")
+			end
+		end*/
 		ply:SetNWBool("Climbing", true)
 	else
 		ply:SetNWBool("Climbing", false)
@@ -219,6 +237,9 @@ function ClimbCheck(ply)
 end
 function Climb()
 	for k, ply in pairs(player.GetAll()) do
+		if (ply:OnGround() and ply:GetNWInt("ClimbCombo") != 0) then
+			ply:SetNWInt("ClimbCombo", 0)
+		end
 		if (ply:GetNWBool("Climbing")) then
 			local velo = ply:GetAimVector()
 			velo.x = velo.x * 2
@@ -232,6 +253,14 @@ function Climb()
 	end 
 end
 hook.Add("Think", "Climb", Climb)
+function Combos(ply)
+	for k, ply in pairs(player.GetAll()) do
+		if (ply:OnGround()) then
+			ply:SetNWInt("WalljumpCombo", 0)
+		end
+	end
+end
+hook.Add("Think", "Combos", Combos)
 function GM:PlayerCanPickupWeapon(ply, wep)
 	if (!ply:GetNWBool("OverridePickup")) then
 		local r = false
@@ -346,19 +375,20 @@ function GM:SetupMove(ply, move)
 		end
 		if (ply:KeyDown(IN_FORWARD) or ply:KeyDown(IN_MOVELEFT) or ply:KeyDown(IN_MOVERIGHT) or ply:KeyDown(IN_BACK)) then
 			if (ply:GetNWInt("Speed") < ply:GetNWInt("CurMaxSpeed") * 0.25) then
-				ply:SetNWInt("Speed", ply:GetNWInt("CurMaxSpeed") + ply:GetNWInt("Acceleration") * 4)
+				ply:SetNWInt("Speed", ply:GetNWInt("Speed") + ply:GetNWInt("Acceleration") * 4)
 			else
 				ply:SetNWInt("Speed", ply:GetNWInt("Speed") + ply:GetNWInt("Acceleration"))
 			end
 		end
 		if (ply:KeyDown(IN_DUCK)) then
-			ply:SetNWInt("Speed", ply:GetNWInt("Speed") - ply:GetNWInt("SlideDecrease"))
+			//ply:SetNWInt("Speed", ply:GetNWInt("Speed") - ply:GetNWInt("SlideDecrease"))
+			ply:SetNWInt("CurMaxSpeed", ply:GetNWInt("CrawlSpeed"))
 		end
 		if (!ply:KeyDown(IN_FORWARD) and !ply:KeyDown(IN_MOVELEFT) and !ply:KeyDown(IN_MOVERIGHT) and !ply:KeyDown(IN_BACK)) then
 			ply:SetNWInt("Speed", ply:GetNWInt("Speed") / 2);
 		end
 		if (ply:GetNWInt("Speed") < ply:GetNWInt("MinSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("MinSpeed")) end
-		if (ply:GetNWInt("Speed") > ply:GetNWInt("CurMaxSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("CurMaxSpeed")) end
+		if (ply:GetNWInt("Speed") > ply:GetNWInt("CurMaxSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("Speed") + ((ply:GetNWInt("CurMaxSpeed") - ply:GetNWInt("Speed")) * 0.9)) end
 		GAMEMODE:SetPlayerSpeed(ply, ply:GetNWInt("Speed"), ply:GetNWInt("Speed"))
 	end
 	//ply:PrintMessage(HUD_PRINTTALK, ply:GetVelocity():Length().." ("..ply:GetNWInt("Speed").."/"..ply:GetNWInt("CurMaxSpeed")..")")
