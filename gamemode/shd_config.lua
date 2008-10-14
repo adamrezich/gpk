@@ -1,9 +1,9 @@
 TEAMBASED					=	false					// make the gamemode team-based
 
-MAXSPEED					=	500						// player top speed
+MAXSPEED					=	450						// player top speed
 
-WALLJUMPTIME				=	0.1
-WALLJUMPDECAY				=	0.1
+WALLJUMPTIME				=	0.05
+WALLJUMPDECAY				=	0.05
 
 FALLFACTOR					=	2.0						// falling damage multiplier
 ROLLFACTOR					=	0.75					// falling damage multiplier when rolling
