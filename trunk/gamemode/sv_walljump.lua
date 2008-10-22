@@ -19,6 +19,7 @@ function WallJump(ply, key)
 			tracedata.filter = ply
 			local tr = util.TraceLine(tracedata)
 			if (tr.Fraction < 1.0) then
+				WallJumpDecal(tr)
 				vVelocity = pVelocity + (vRight * ReboundPower)
 				vVelocity.z = pVelocity.z + ReboundPowerUp
 				ply:SetLocalVelocity(vVelocity)
@@ -33,6 +34,7 @@ function WallJump(ply, key)
 			tracedata.filter = ply
 			local tr = util.TraceLine(tracedata)
 			if (tr.Fraction < 1.0) then
+				WallJumpDecal(tr)
 				vVelocity = pVelocity + (vRight * -ReboundPower)
 				vVelocity.z = pVelocity.z + ReboundPowerUp
 				ply:SetLocalVelocity(vVelocity)
@@ -47,6 +49,7 @@ function WallJump(ply, key)
 			tracedata.filter = ply
 			local tr = util.TraceLine(tracedata)
 			if (tr.Fraction < 1.0) then
+				WallJumpDecal(tr)
 				vVelocity = pVelocity + (vForward * -ReboundPower)
 				vVelocity.z = pVelocity.z + ReboundPowerUp
 				ply:SetLocalVelocity(vVelocity)
@@ -54,6 +57,20 @@ function WallJump(ply, key)
 				ply:SetNWInt("WalljumpTimer", CurTime() + WALLJUMPTIME + ply:GetNWInt("WalljumpCombo") * WALLJUMPDECAY)
 			end
 		end
+		/*if ply:KeyDown(IN_FORWARD) and ply:OnGround() then
+			local tracedata = {}
+			tracedata.start = ply:GetPos()
+			tracedata.endpos = ply:GetPos()+(vForward*24)
+			tracedata.filter = ply
+			local tr = util.TraceLine(tracedata)
+			if (tr.Fraction < 1.0) then
+				//vVelocity = pVelocity + (vForward * -ReboundPower)
+				vVelocity.z = pVelocity.z + ReboundPowerUp * 0.5
+				ply:SetLocalVelocity(vVelocity)
+				WallJumpSound(ply)
+				ply:SetNWInt("WalljumpTimer", CurTime() + WALLJUMPTIME + ply:GetNWInt("WalljumpCombo") * WALLJUMPDECAY)
+			end
+		end*/
 		if ply:KeyDown(IN_FORWARD) then
 			local tracedata = {}
 			tracedata.start = ply:GetPos()
@@ -61,6 +78,7 @@ function WallJump(ply, key)
 			tracedata.filter = ply
 			local tr = util.TraceLine(tracedata)
 			if (tr.Fraction < 1.0) then
+				WallJumpDecal(tr)
 				vVelocity = pVelocity + (vForward * ReboundPower)
 				vVelocity.z = pVelocity.z + ReboundPowerUp
 				ply:SetLocalVelocity(vVelocity)
@@ -86,9 +104,11 @@ function WallSlide(ply, key)
 				tracedata.start = ply:GetPos()
 				tracedata.endpos = ply:GetPos()+(vForward*24)
 				tracedata.filter = ply
+				
 				local tr = util.TraceLine(tracedata)
 				if (tr.Fraction < 1.0) then
 					if (!ply:GetNWBool("Climbing")) then
+						//if (math.random(3) == 2) then util.Decal("FadingScorch", tr.HitPos - tr.HitNormal, tr.HitPos + tr.HitNormal) end
 						SlideSound[ply:UniqueID()]:PlayEx(1,100)
 						ply:SetNWBool("Wallsliding", true)
 					end
@@ -117,4 +137,7 @@ end
 function WallJumpCombo(ply)
 	ply:SetNWInt("WalljumpCombo", ply:GetNWInt("WalljumpCombo") + 1)
 	//if (ply:GetNWInt("WalljumpCombo") > 1) then ply:PrintMessage(HUD_PRINTCENTER, "WALLJUMP x" .. ply:GetNWInt("WalljumpCombo")) end
+end
+function WallJumpDecal(tr)
+	//util.Decal("RedGlowFade", tr.HitPos - tr.HitNormal, tr.HitPos + tr.HitNormal)
 end

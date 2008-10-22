@@ -128,6 +128,8 @@ end
 function GM:PlayerLoadout(ply)
 	ply:SetNWBool("OverridePickup", true)
 	ply:Give("weapon_gpk_fists")
+	ply:Give("weapon_gpk_tagger")
+	ply:Give("weapon_gpk_crowbar")
 	//ply:Give("weapon_gpk_pistol")
 	ply:SetNWBool("OverridePickup", false)
 	ply:SetArmor(0)
@@ -333,6 +335,12 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 			end, ply)
 			return true
 		elseif (wep:GetClass() == "weapon_gpk_shotgun") then
+			PickupViewPunch(ply)
+			timer.Simple(0.05, function(ply)
+				ply:SelectWeapon("weapon_gpk_shotgun")
+			end, ply)
+			return true
+		elseif (wep:GetClass() == "weapon_gpk_tagger") then
 			PickupViewPunch(ply)
 			timer.Simple(0.05, function(ply)
 				ply:SelectWeapon("weapon_gpk_shotgun")
