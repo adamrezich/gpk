@@ -1,10 +1,7 @@
 include('shared.lua')
 local TEXT = {}
-TEXT[0]="Your advertisement here,"
-TEXT[1]="just $1.00/month!"
-TEXT[2]="Hurry, prices subject to"
-TEXT[3]="change based on demand!"
-
+TEXT[0]="ADVERTISEMENT"
+TEXT[1]="GOES HERE, LOL"
 function ENT:Initialize()
 	local h = 384
 	local l = 128
