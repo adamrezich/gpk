@@ -9,4 +9,5 @@ GM.TeamBased 	= TEAMBASED
 function GM:Initialize()
 	self.BaseClass.Initialize(self)
 	if (SERVER) then game.ConsoleCommand("mp_falldamage 1\n") end
+	//if (SERVER) then game.ConsoleCommand("mp_falldamage 0\n") end
 end

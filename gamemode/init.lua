@@ -5,6 +5,7 @@ AddCSLuaFile(	"shd_ragspec.lua")
 AddCSLuaFile(	"shd_viewpunch.lua")
 
 include(		"shared.lua")
+//include(		"sv_speedhurt.lua")
 include(		"sv_walljump.lua")
 include(		"sv_svn.lua")
 include(		"sv_dropweapon.lua")
@@ -113,6 +114,7 @@ function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt(	"ClimbCombo",		0)
 	ply:SetNWInt(	"WalljumpCombo",	0)
 	ply:SetNWInt(	"WalljumpTimer",	CurTime())
+	ply:SetNWInt(	"HealTimer",		CurTime())
 	ply:SetNWBool(	"Climbing",			false)
 	ply:SetNWBool(	"Rolling",			false)
 	ply:SetNWBool(	"Wallsliding",		false)
@@ -128,19 +130,20 @@ end
 function GM:PlayerLoadout(ply)
 	ply:SetNWBool("OverridePickup", true)
 	ply:Give("weapon_gpk_fists")
-	ply:Give("weapon_gpk_tagger")
-	ply:Give("weapon_gpk_crowbar")
+	//ply:Give("weapon_gpk_tagger")
+	//ply:Give("weapon_gpk_crowbar")
 	//ply:Give("weapon_gpk_pistol")
 	ply:SetNWBool("OverridePickup", false)
 	ply:SetArmor(0)
 	ply:DrawWorldModel(false)
+	ply:SetJumpPower(150)
 	return true
 end
 local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 	if (!ent:IsPlayer()) then return false end
 	local ply = ent;
 	
-	if (dmginfo:IsFallDamage()) then
+	if (dmginfo:IsFallDamage() and ply:Health() - dmginfo:GetDamage() * FALLFACTOR > 0) then
 		local _lookangle = ply:GetUp() - ply:GetAimVector();
 		local _lookingdown = false;
 		if (_lookangle.z > 1.7) then _lookingdown = true end
@@ -204,6 +207,13 @@ function GM:KeyPress(ply, key)
 	if (key == IN_USE) then
 		ClimbCheck(ply)
 	end
+	/*if (key == IN_JUMP) then
+		if (ply:GetVelocity() == Vector(0,0,0)) then
+			ply:SetJumpPower(210)
+		else
+			ply:SetJumpPower(150)
+		end
+	end*/
 end
 function ClimbCheck(ply)
 	local tr = {}
@@ -214,7 +224,7 @@ function ClimbCheck(ply)
 	local pos = basepos
 	local ang = ply:GetAimVector()
 	ang.z=0
-	pos = basepos + Vector(0, 0, 108)
+	pos = basepos + Vector(0, 0, 120)
 	local trace = util.QuickTrace(pos, ang * 32, ply)
 	tr.a = trace.HitWorld
 	pos = basepos + Vector(0, 0, 32)
@@ -322,6 +332,18 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 				wep.Entity:Remove();
 				//PickupViewPunch(ply)
 			end
+		elseif (wep:GetClass() == "weapon_stunstick") then
+			if (ply:HasWeapon("weapon_gpk_stunstick")) then
+				return false
+			else
+				local _override = ply:GetNWBool("OverridePickup");
+				ply:SetNWBool("OverridePickup", true);
+				ply:Give("weapon_gpk_stunstick");
+				ply:SelectWeapon("weapon_gpk_stunstick")
+				ply:SetNWBool("OverridePickup", _override);
+				wep.Entity:Remove();
+				//PickupViewPunch(ply)
+			end
 		elseif (wep:GetClass() == "weapon_gpk_pistol") then
 			PickupViewPunch(ply)
 			timer.Simple(0.05, function(ply)
@@ -350,6 +372,12 @@ function GM:PlayerCanPickupWeapon(ply, wep)
 			PickupViewPunch(ply)
 			timer.Simple(0.05, function(ply)
 				ply:SelectWeapon("weapon_gpk_crowbar")
+			end, ply)
+			return true
+		elseif (wep:GetClass() == "weapon_gpk_stunstick") then
+			PickupViewPunch(ply)
+			timer.Simple(0.05, function(ply)
+				ply:SelectWeapon("weapon_gpk_stunstick")
 			end, ply)
 			return true
 		/*elseif (wep:GetClass() == "weapon_slam") then
@@ -395,8 +423,13 @@ function GM:SetupMove(ply, move)
 		if (!ply:KeyDown(IN_FORWARD) and !ply:KeyDown(IN_MOVELEFT) and !ply:KeyDown(IN_MOVERIGHT) and !ply:KeyDown(IN_BACK)) then
 			ply:SetNWInt("Speed", ply:GetNWInt("Speed") / 2);
 		end
+		
+		if (ply:KeyDown(IN_SPEED)) then
+			ply:SetNWInt("CurMaxSpeed", WALKSPEED)
+		end
+		
 		if (ply:GetNWInt("Speed") < ply:GetNWInt("MinSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("MinSpeed")) end
-		if (ply:GetNWInt("Speed") > ply:GetNWInt("CurMaxSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("Speed") + ((ply:GetNWInt("CurMaxSpeed") - ply:GetNWInt("Speed")) * 0.9)) end
+		if (ply:GetNWInt("Speed") > ply:GetNWInt("CurMaxSpeed")) then ply:SetNWInt("Speed", ply:GetNWInt("Speed") + ((ply:GetNWInt("CurMaxSpeed") - ply:GetNWInt("Speed")) * 0.99999999999999999999999)) end
 		GAMEMODE:SetPlayerSpeed(ply, ply:GetNWInt("Speed"), ply:GetNWInt("Speed"))
 	end
 	//ply:PrintMessage(HUD_PRINTTALK, ply:GetVelocity():Length().." ("..ply:GetNWInt("Speed").."/"..ply:GetNWInt("CurMaxSpeed")..")")

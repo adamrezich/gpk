@@ -13,10 +13,6 @@ if (CLIENT) then
 	SWEP.CSMuzzleFlashes	= true
 end
 
-/*SWEP.Author						= "TEAM GPK"
-SWEP.Contact					= "http://rezich.com/gpk"
-SWEP.Purpose					= "SWEP specifically for the GPK gamemode."
-SWEP.Instructions				= "Don't use outside of the GPK gamemode."*/
 SWEP.Base						= "weapon_base"
 
 SWEP.Spawnable					= false
@@ -55,6 +51,7 @@ SWEP.IsFlashlight				= false
 SWEP.Lowered					= false
 SWEP.Shotgun					= false
 SWEP.CockNext					= false // no jokes about this one
+SWEP.CockTimer					= CurTime()	// or this one either
 
 local IRONSIGHT_TIME = 0.25
 local SAFETY_TIME = 0.25
@@ -328,10 +325,6 @@ function SWEP:CanPrimaryAttack()
 		return false
 	end
 	
-	if (self.Weapon.Shotgun and self.Weapon.CockNext) then
-		//self.Weapon:
-	end
-	
 	if self.Weapon:GetOwner():GetMoveType() == MOVETYPE_LADDER then
 		return false
 	end
@@ -342,6 +335,19 @@ function SWEP:PrimaryAttack()
 	/*if (self:GetNetworkedEntity("held"):IsValid() or !self:GetNetworkedBool("canprimary")) then
 		return false
 	end*/
+	if (self.Weapon.Shotgun and self.Weapon:Clip1() > 0) then
+		if (self.Weapon.CockNext) then
+			self.Weapon.CockNext = false
+			self.Weapon:SendWeaponAnim(ACT_SHOTGUN_PUMP)
+			self.Weapon:EmitSound(Sound("Weapon_Shotgun.Special1"))
+			self.Weapon.CockTimer = CurTime() + 0.45
+			return true
+		elseif (self.Weapon.CockTimer <= CurTime()) then
+			self.Weapon.CockNext = true
+		else
+			return true
+		end
+	end
 	self:SetWeaponHoldType(self.RealHoldType)
 	if (SERVER) then self:StartLower() end
 	self.Weapon:SetNextSecondaryFire(CurTime() + self.Primary.Delay)
