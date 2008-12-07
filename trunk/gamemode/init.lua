@@ -115,6 +115,8 @@ function GM:PlayerInitialSpawn(ply)
 	ply:SetNWInt(	"WalljumpCombo",	0)
 	ply:SetNWInt(	"WalljumpTimer",	CurTime())
 	ply:SetNWInt(	"HealTimer",		CurTime())
+	ply:SetNWInt(	"TurnDegrees",		CurTime())
+	ply:SetNWInt(	"TurnTimer",		CurTime())
 	ply:SetNWBool(	"Climbing",			false)
 	ply:SetNWBool(	"Rolling",			false)
 	ply:SetNWBool(	"Wallsliding",		false)
@@ -143,7 +145,7 @@ local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 	if (!ent:IsPlayer()) then return false end
 	local ply = ent;
 	
-	if (dmginfo:IsFallDamage() and ply:Health() - dmginfo:GetDamage() * FALLFACTOR > 0) then
+	if (dmginfo:IsFallDamage() /*and ply:Health() - (amount * FALLFACTOR) > 0*/) then
 		local _lookangle = ply:GetUp() - ply:GetAimVector();
 		local _lookingdown = false;
 		if (_lookangle.z > 1.7) then _lookingdown = true end
@@ -214,6 +216,13 @@ function GM:KeyPress(ply, key)
 			ply:SetJumpPower(150)
 		end
 	end*/
+	/*if (key == IN_ATTACK2) then
+		if (ply:GetNWInt("TurnDegrees") > 0) then
+			ply:SetNWInt("TurnDegrees", 180)
+			ply:SetNWInt("TurnTimer", CurTime() + TURNSPEED)
+		end
+		timer.Simple(TURNSPEED, function(ply) Turn(ply, 0) end, ply)
+	end*/
 end
 function ClimbCheck(ply)
 	local tr = {}
@@ -273,6 +282,18 @@ function Combos(ply)
 	end
 end
 hook.Add("Think", "Combos", Combos)
+
+function Turn(ply, n)
+	//local ang = ply:GetForward():Normalize():Angle()
+	local ang=ply:GetShootPos():Angle()
+	ang.y = ang.y + 30
+	if (ang.y > 359) then ang.y = ang.y - 359 end
+	ply:SetEyeAngles(ang)
+	ply:SendLua("LocalPlayer():SetEyeAngles(Angle(" .. ang.p .. ", " .. ang.y .. "," .. ang.r .. "))")
+	n = n + 30
+	if (n < 180) then timer.Simple(TURNSPEED, function(ply, n) Turn(ply, n) end, ply, n) end
+	ply:ChatPrint(n)
+end
 function GM:PlayerCanPickupWeapon(ply, wep)
 	if (!ply:GetNWBool("OverridePickup")) then
 		local r = false

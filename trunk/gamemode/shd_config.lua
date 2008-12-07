@@ -19,3 +19,5 @@ ALLOW = {												// whether or not to allow certain moves
 	ROLL					=	true,
 	SLIDE					=	true
 }
+
+TURNSPEED					=	0.000001

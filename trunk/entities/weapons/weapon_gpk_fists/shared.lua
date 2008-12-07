@@ -101,7 +101,7 @@ else
 	self.Weapon:SendWeaponAnim(ACT_VM_MISSCENTER)
 end
 end
-function SWEP:SecondaryAttack()
+/*function SWEP:SecondaryAttack()
 self.Weapon:SetNextSecondaryFire(CurTime() + .6)
 if (!self:CanSecondaryAttack()) then return end
 local trace = self.Owner:GetEyeTrace()
@@ -143,4 +143,4 @@ else
 	self.Weapon:SendWeaponAnim(ACT_VM_MISSCENTER)
 end
 
-end
+end*/

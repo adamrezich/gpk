@@ -7,7 +7,7 @@ concommand.Add("DropWeapon", DropCurrentWeapon)
  
 function AutoBindOnSpawn(ply)
 	ply.AllowWeaponPickupFix = 1
-	ply:ConCommand("bind g DropWeapon\n") // Take this out if you don't like autobinding, or change 'g' to whatever you wish.
+	//ply:ConCommand("bind g DropWeapon\n")
 end
  
 hook.Add("PlayerInitialSpawn", "AutobindDropWeapon", AutoBindOnSpawn)
