@@ -1,7 +1,7 @@
 #summary Sidebar for the wiki
 #labels Deprecated
-*GPK*
+= GPK =
 
-*User guide*
+==User guide ==
  * [GameplayQuickReference Keyboard Quick References]
  * [SettingUpSVN Setting up SVN]
