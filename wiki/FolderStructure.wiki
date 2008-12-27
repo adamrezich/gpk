@@ -1,5 +1,5 @@
 #summary How GPK is set up on your computer
-#labels Dev-Manual
+#labels Dev-Manual,Deprecated
 
 {{{
 [+] garrysmod
