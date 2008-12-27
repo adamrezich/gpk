@@ -1,3 +1,7 @@
 #summary Sidebar for the wiki
 #labels Deprecated
-= Sidebar! =
+*GPK*
+
+*User guide*
+ * [GameplayQuickReference Keyboard Quick References]
+ * [SettingUpSVN Setting up SVN]
