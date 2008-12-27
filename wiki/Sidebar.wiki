@@ -1,0 +1,3 @@
+#summary Sidebar for the wiki
+#labels Deprecated
+= Sidebar! =
