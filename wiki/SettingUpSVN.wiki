@@ -25,4 +25,4 @@ Many people want to know how to get the latest, greatest GPK files to test; usua
   # If you're asked for a username and password, then that means that you're a developer. Type in your Google Code username and password, and you'll be able to commit changes as well as download the updates.
     # Your Google Code username is most likely your Gmail address.
     # It's advisable to check the "Save Login" box so you don't have to go back and find your obscure, randomly-generated password from the Google Code website.
-  # In the future, simply right-click on the "zday" folder and click "SVN Update..." to update to the latest version of GPK.
+  # In the future, simply right-click on the "gpk" folder and click "SVN Update..." to update to the latest version of GPK.
