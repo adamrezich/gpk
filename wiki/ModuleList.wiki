@@ -1,2 +1,2 @@
 #summary Listing of every gpk-module
-#labels Dev-Manual,Depricated
+#labels Dev-Manual,Deprecated
