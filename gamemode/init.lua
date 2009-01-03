@@ -169,6 +169,7 @@ local function ReduceFallDamage( ent, inflictor, attacker, amount, dmginfo )
 					ply:GetActiveWeapon().Weapon.Lowered = false
 					ply:GetActiveWeapon():ResetLower()
 					ply:SetNWBool("Rolling", false)
+					ply:SendLua("ANIM_RUNNING = false")
 				end
 			end, ply);
 		else

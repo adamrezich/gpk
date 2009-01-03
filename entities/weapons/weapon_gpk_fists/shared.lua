@@ -2,7 +2,7 @@ if (SERVER) then AddCSLuaFile("shared.lua") end
 
 SWEP.Base						= "weapon_gpk_base"
 
-SWEP.ViewModel					= "models/weapons/v_fists.mdl"
+SWEP.ViewModel					= "models/weapons/v_gpk_fists.mdl"
 SWEP.WorldModel					= "models/weapons/w_crowbar.mdl"
 
 SWEP.PrintName					= "Fists"
@@ -12,7 +12,7 @@ SWEP.SlotPos					= 0
 SWEP.AutoSwitchTo				= true
 SWEP.AutoSwitchFrom				= true
 
-SWEP.ViewModelFOV				= 40
+SWEP.ViewModelFOV				= 50
 SWEP.ViewModelFlip				= false
 SWEP.IronSightsPos 				= Vector(0, 0, 0)
 SWEP.IronSightsAng				= Vector(0, 0, 0)
@@ -51,6 +51,8 @@ SWEP.Secondary.Ammo				= "none"
 
 SWEP.KillString1				= "killed"
 SWEP.KillString2				= "with his 9mm Pistol"
+
+SWEP.Fists						= true
 
 function SWEP:Precache()
 	util.PrecacheSound("physics/flesh/flesh_impact_bullet3.wav")

@@ -53,6 +53,8 @@ SWEP.Shotgun					= false
 SWEP.CockNext					= false // no jokes about this one
 SWEP.CockTimer					= CurTime()	// or this one either
 
+SWEP.Fists						= false
+
 local IRONSIGHT_TIME = 0.25
 local SAFETY_TIME = 0.25
 SWEP.NextSecondaryAttack = 0
@@ -70,6 +72,15 @@ ActIndex[ "melee" ] 		= ACT_HL2MP_IDLE_MELEE
 ActIndex[ "slam" ] 			= ACT_HL2MP_IDLE_SLAM
 ActIndex[ "normal" ]		= ACT_HL2MP_IDLE
 
+ANIM_RUNNING = false
+
+/*
+
+Fists custom animation translations:
+Running: ACT_VM_IDLE_LOWERED
+Sliding: ?
+
+*/
 function SWEP:SetWeaponHoldType(t)
 
 	local index = ActIndex[ t ]
@@ -148,6 +159,7 @@ function SWEP:Initialize()
 	self:SetNetworkedBool("canprimary",true)
 	self:SetNetworkedBool("cansecondary",true)
 	self:SetNetworkedBool("canreload",true)
+	//self:SetNetworkedBool("Running", false)
 	
 	-- Precache our sounds.
 	if self.Primary.Sound then
@@ -172,6 +184,31 @@ function SWEP:Think()
 	elseif ply:GetMoveType() != MOVETYPE_LADDER then
 		self:DoDeploy()
 	end
+	
+	if self.Fists then
+		// Running animation
+		if (CLIENT) then
+			if (ply:KeyDown(IN_FORWARD) or ply:KeyDown(IN_BACK) or ply:KeyDown(IN_MOVELEFT) or ply:KeyDown(IN_MOVERIGHT)) and !ANIM_RUNNING then
+				self.Weapon:SendWeaponAnim(ACT_VM_IDLE_LOWERED)
+				ANIM_RUNNING = true
+			end
+			if (!ply:KeyDown(IN_FORWARD) and !ply:KeyDown(IN_BACK) and !ply:KeyDown(IN_MOVELEFT) and !ply:KeyDown(IN_MOVERIGHT)) and ANIM_RUNNING then
+				ANIM_RUNNING = false
+				self.Weapon:SendWeaponAnim(ACT_VM_IDLE)
+			end
+			if self.GetNWBool("Running") then
+				self.Weapon:SetPlaybackRate(ply:GetNWInt("Speed") / 10)
+			end
+			if (ply:GetMoveType() == MOVETYPE_LADDER) then
+				ANIM_RUNNING = false
+			end
+			
+			// Falling animation
+			// TODO: Falling animation
+			
+		end
+	end
+	
 	if (SERVER) then
 		/*if ply:GetMoveType() == MOVETYPE_LADDER then
 			self:DoHolster()
